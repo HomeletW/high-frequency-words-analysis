@@ -1,0 +1,4 @@
+jieba
+matplotlib
+pandas
+textract
