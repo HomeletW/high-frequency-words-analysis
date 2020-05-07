@@ -1,4 +1,6 @@
 jieba
 matplotlib
 pandas
-textract
+docx
+numpy
+sklearn

@@ -51,12 +51,12 @@ class StatisticalAnalyzer:
     - _num_wanted >= len(_whitelist_word)
     - _whitelist_word 与 _blacklist_word 交集为空集
     """
-    _lst: List[Dict[str, int]]
+    _lst: List[Tuple[Dict[str, int], str]]
     _whitelist_word: List[str]
     _blacklist_word: List[str]
 
     def __init__(self,
-                 lst: List[Dict[str, int]],
+                 lst: List[Tuple[Dict[str, int], str]],
                  whitelist_word: List[str],
                  blacklist_word: List[str]) -> None:
         """初始化 StatisticalAnalyzer"""
@@ -66,20 +66,22 @@ class StatisticalAnalyzer:
 
     def _words(self) -> FrozenSet[str]:
         """返回所有的词汇"""
-        return frozenset(word for year in self._lst for word, _ in year.items())
+        return frozenset(
+            word for year in self._lst for word, _ in year[0].items()
+        )
 
     def _values(self, words: FrozenSet[str] = None) -> \
-            Dict[str, List[int]]:
+            Dict[str, List[Tuple[int, str]]]:
         """
         返回所有词汇的对应年份的出现频率
 
         返回参数如下：
         :return: 一个字典，键为词汇，值为 所有年份出现频率
         """
-        return {word: [year.get(word, 0) for year in self._lst] for word in
-                (words if words is not None else self._words())}
+        return {word: [(count.get(word, 0), name) for count, name in self._lst]
+                for word in (words if words is not None else self._words())}
 
-    def _frequency(self, values: Dict[str, List[int]] = None) -> \
+    def _frequency(self, values: Dict[str, List[Tuple[int, str]]] = None) -> \
             Dict[str, int]:
         """
         返回一个字典，键为 _lst 的词汇，值为出现次数
@@ -90,11 +92,11 @@ class StatisticalAnalyzer:
         :return: 一个字典包含所有词汇
         """
         return {
-            word: sum(value) for word, value in
+            word: sum(v for v, _ in value) for word, value in
             (values if values is not None else self._values()).items()
         }
 
-    def _offsets(self, values: Dict[str, List[int]] = None) -> \
+    def _offsets(self, values: Dict[str, List[Tuple[int, str]]] = None) -> \
             Dict[str, List[int]]:
         """
         返回所有单词的 offset 值
@@ -108,22 +110,22 @@ class StatisticalAnalyzer:
         }
 
     @staticmethod
-    def _get_offset(value: List[int]) -> List[int]:
+    def _get_offset(value: List[Tuple[int, str]]) -> List[int]:
         """
         返回 value 的 offset 值
         """
         offsets = []
         last = None
-        for this in value:
+        for this, _ in value:
             if last is not None:
                 offsets.append(this - last)
             last = this
         return offsets
 
     def _rank(self, scores: Dict[str, Any],
-              values: Dict[str, List[int]] = None,
+              values: Dict[str, List[Tuple[int, str]]] = None,
               key: Callable = lambda a: a) -> \
-            List[Tuple[str, List[int], Any]]:
+            List[Tuple[str, List[Tuple[int, str]], Any]]:
         """
         返回一个排序过的列表，排序规则的 key 返回的值，与 List.sort 的 key 参数相同。
 
@@ -142,12 +144,13 @@ class StatisticalAnalyzer:
             values = self._values()
         # rank and filter the blacklist
         return sorted(
-            ((word, values[word], score) for word, score in scores.items() if
-             word not in self._blacklist_word), key=lambda a: key(a[2]),
-            reverse=True
+            ((word, values[word], score) for word, score in scores.items()
+             if word not in self._blacklist_word),
+            key=lambda a: key(a[2]), reverse=True
         )
 
-    def analyse(self, *args, **kwargs) -> List[Tuple[str, List[int], Any]]:
+    def analyse(self, *args, **kwargs) -> \
+            List[Tuple[str, List[Tuple[str, int]], Any]]:
         """
         返回一个排序过的列表，报告词汇分析结果，该列表包括：
             [(词汇，词汇每年出现频率，衡量标准), ... ]
@@ -159,7 +162,7 @@ class StatisticalAnalyzer:
 
     @classmethod
     def const(cls,
-              lst: List[Dict[str, int]],
+              lst: List[Tuple[Dict[str, int], str]],
               whitelist_word: List[str],
               blacklist_word: List[str]):
         """创建一个 StatisticalAnalyzer object"""
@@ -179,12 +182,12 @@ class FrequencyAnalyzer(StatisticalAnalyzer):
     === 前提条件 ===
     - _whitelist_word 与 _blacklist_word 交集为空集
     """
-    _lst: List[Dict[str, int]]
+    _lst: List[Tuple[Dict[str, int], str]]
     _whitelist_word: List[str]
     _blacklist_word: List[str]
     _num_wanted: Optional[int]
 
-    def analyse(self, *args, **kwargs) -> List[Tuple[str, List[int], Any]]:
+    def analyse(self, **kwargs) -> List[Tuple[str, List[Tuple[int, str]], Any]]:
         return self._rank(self._frequency())
 
 
@@ -203,18 +206,18 @@ class TrendAnalyzer(StatisticalAnalyzer):
     - _lst 长度至少为 2
     - 0 <= _tolerance <= 100
     """
-    _lst: List[Dict[str, int]]
+    _lst: List[Tuple[Dict[str, int], str]]
     _whitelist_word: List[str]
     _blacklist_word: List[str]
     _threshold: Tuple[float, float]
 
-    def __init__(self, lst: List[Dict[str, int]],
+    def __init__(self, lst: List[Tuple[Dict[str, int], str]],
                  whitelist_word: List[str],
                  blacklist_word: List[str]) -> None:
         super().__init__(lst, whitelist_word, blacklist_word)
         self._threshold = (-0.4, 0.4)
 
-    def analyse(self, *args, **kwargs) -> List[Tuple[str, List[int], Any]]:
+    def analyse(self, **kwargs) -> List[Tuple[str, List[Tuple[int, str]], Any]]:
         """
         返回一个集 包括 _num_wanted 个在 _lst 的重要高频词汇
 
@@ -238,7 +241,7 @@ class TrendAnalyzer(StatisticalAnalyzer):
         for word, value in values.items():
             # we build the module
             x = np.array(range(len(value))).reshape(-1, 1)
-            y = np.array(value).reshape(-1, 1)
+            y = np.array(list(v for v, _ in value)).reshape(-1, 1)
             x_train, x_test, y_train, y_test = train_test_split(
                 x, y, test_size=0.2, random_state=0
             )
