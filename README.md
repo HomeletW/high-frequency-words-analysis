@@ -2,4 +2,4 @@
 
 ## 项目概述
 
-![Project overview](resource\project_overview.png?raw=true "overview")
+<img src="resource/project_overview.png">
