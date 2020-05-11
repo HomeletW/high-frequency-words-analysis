@@ -1,6 +1,9 @@
 jieba
 matplotlib
 pandas
-docx
 numpy
 sklearn
+pdf2image
+Pillow
+tesserocr
+opencv-python
