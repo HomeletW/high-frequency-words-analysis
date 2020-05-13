@@ -1,24 +1,14 @@
-import sys
 from os import listdir
 from os.path import isfile, join, splitext
 from typing import List, Tuple
-
-# import docx
-
-sys.path.append("./")
 
 DATA_PREFIX = "data"
 
 
 def extract_content(path: str) -> str:
     """读取一个文件的全部信息"""
-    if path.endswith(".doc") or path.endswith(".docx"):
-        # doc = docx.Document(path)
-        # content = "".join(par.text for par in doc.paragraphs)
-        return ""
-    else:
-        with open(path, encoding="utf8") as f:
-            return f.read()
+    with open(path, encoding="utf8") as f:
+        return f.read()
 
 
 def load_suggestion_word(path: str) -> List[str]:
@@ -44,10 +34,21 @@ def prepare_data(root_path: str) -> List[Tuple[str, str]]:
             order_index = int(file_args[2]) if len(file_args) >= 3 else 0
             data.append(
                 (
-                    extract_content(abs_path),  # the content
+                    get_text(abs_path),  # the content
                     file_args[1],  # the display name
                     order_index,  # the order index
                 )
             )
     data.sort(key=lambda a: (a[2], a[1]))
     return [(content, name) for content, name, _ in data]
+
+
+def get_text(path: str) -> str:
+    return "\n".join(line.split("|", 1)[-1].strip() for line in
+                     extract_content(path).split("\n") if
+                     not line.startswith("#"))
+
+
+if __name__ == '__main__':
+    data = prepare_data("./data/output")
+    print(data)

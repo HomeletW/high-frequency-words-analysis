@@ -6,4 +6,3 @@ sklearn
 pdf2image
 Pillow
 tesserocr
-opencv-python

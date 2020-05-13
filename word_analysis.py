@@ -1,5 +1,6 @@
 # coding=utf-8
-from os.path import join
+from os.path import join, exists
+from os import makedirs
 from typing import Type
 
 # 引用必要库
@@ -11,7 +12,7 @@ from prepare_data import load_suggestion_word, prepare_data
 from word_statistics import *
 
 # 画图环境准备
-font_path = "./SourceHanSerifSC-Light.otf"
+font_path = "./resource/SourceHanSerifSC-Light.otf"
 prop = mfm.FontProperties(fname=font_path)
 shapes = ["v", "s", "h", "o", "*", "p", "P", "H", "+", "x", "X", "d", "D"]
 COMMENT_OFFSET = 10
@@ -102,6 +103,9 @@ def summarise(path: str,
     :param extractor: 用做提取器的算法，应该为（TF_IDF 或者 TEXT_RANK)
     :param statistics_analyzer: 用做分析器的统计分析器，应为 StatisticalAnalyzer 的子类
     """
+    # make sure output path is available
+    if not exists(output_path):
+        makedirs(output_path)
     # prepare the data
     data = prepare_data(path)
     # extract the important word segment in format [(dict of words, label), ...]
@@ -181,7 +185,7 @@ def prepare_graph(name: str,
 
 def main():
     summarise(
-        path="./data",
+        path="./data/output",
         output_path="./data/result",
         suggestion_word=[],
         whitelist_word=[],
