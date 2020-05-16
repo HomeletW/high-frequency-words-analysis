@@ -1,6 +1,6 @@
 # coding=utf-8
-from os.path import join, exists
 from os import makedirs
+from os.path import exists, join
 from typing import Type
 
 # 引用必要库
@@ -8,17 +8,16 @@ import jieba.analyse
 import matplotlib.font_manager as mfm
 import matplotlib.pyplot as plt
 
-from prepare_data import load_suggestion_word, prepare_data
-from word_statistics import *
+from hf_analysis.parameter import *
+from hf_analysis.processing.prepare_data import prepare_data
+from hf_analysis.word.word_statistics import *
 
 # 画图环境准备
 font_path = "./resource/SourceHanSerifSC-Light.otf"
 prop = mfm.FontProperties(fname=font_path)
 shapes = ["v", "s", "h", "o", "*", "p", "P", "H", "+", "x", "X", "d", "D"]
 COMMENT_OFFSET = 10
-
-# 建议关键词路径
-suggestion_path = "./suggestion_word.txt"
+DEFAULT_EXTREMA = (110, -10)
 
 # 装载用户自定义字典
 jieba.load_userdict(suggestion_path)
@@ -29,7 +28,6 @@ TEXT_RANK = jieba.analyse.textrank
 
 
 def extract(sentence: str,
-            suggestion_word: List[str],
             whitelist_word: List[str],
             num_wanted: int,
             extractor=TEXT_RANK) -> Dict[str, int]:
@@ -47,7 +45,6 @@ def extract(sentence: str,
 
     参数列表如下：
     :param sentence: 文章本身
-    :param suggestion_word: 想要一定被考虑的关键词列表
     :param whitelist_word: 想要一定出现的关键词列表
     :param num_wanted: 想要的关键词的个数
     :param extractor: 用做提取器的算法，应该为（TF_IDF 或者 TEXT_RANK)
@@ -72,8 +69,6 @@ def extract(sentence: str,
     # summaries
     summary = {seg: segments.count(seg) for seg in seg_list}
     # add suggestion word and whitelist word
-    summary.update({word: segments.count(word) for word in suggestion_word if
-                    word not in summary})
     summary.update({word: segments.count(word) for word in whitelist_word if
                     word not in summary})
     return summary
@@ -81,7 +76,6 @@ def extract(sentence: str,
 
 def summarise(path: str,
               output_path: str,
-              suggestion_word: List[str],
               whitelist_word: List[str],
               blacklist_word: List[str],
               num_wanted: int,
@@ -95,7 +89,6 @@ def summarise(path: str,
     参数列表如下：
     :param path: 一个指向所有 data 文件的路径
     :param output_path: 一个指向所有结果参数的输出路径
-    :param suggestion_word: 想要一定被考虑的关键词列表
     :param whitelist_word: 想要一定出现的关键词列表
     :param blacklist_word: 想要一定不出现的关键词列表
     :param num_wanted: 想要的关键词的个数
@@ -111,7 +104,7 @@ def summarise(path: str,
     # extract the important word segment in format [(dict of words, label), ...]
     seg = [
         (extract(
-            content, suggestion_word, whitelist_word, num_wanted * 10, extractor
+            content, whitelist_word, num_wanted * 10, extractor
         ), name) for content, name in data
     ]
     # create the statistical analyzer
@@ -126,7 +119,7 @@ def summarise(path: str,
 
 def get_extrema(data: List[Tuple[str, List[Tuple[int, str]], Any]]) -> \
         Tuple[int, int]:
-    max_, min_ = None, None
+    max_, min_ = DEFAULT_EXTREMA
     for _, value, _ in data:
         max_v, min_v = max(value, key=lambda a: a[0])[0], \
                        min(value, key=lambda a: a[0])[0]
@@ -165,7 +158,6 @@ def draw_once(word: str,
 
 def prepare_graph(name: str,
                   size: Tuple[int, int],
-                  ncol: int,
                   extrema: Tuple[int, int]) -> plt.Figure:
     fig = plt.figure(name, figsize=size, dpi=100)
     ax = plt.axes()
@@ -185,9 +177,8 @@ def prepare_graph(name: str,
 
 def main():
     summarise(
-        path="./data/output",
-        output_path="./data/result",
-        suggestion_word=[],
+        path=join("./data", DATA_PATH),
+        output_path=join("./data", RESULT_PATH),
         whitelist_word=[],
         blacklist_word=[],
         num_wanted=7,

@@ -1,14 +1,34 @@
 from os import listdir
 from os.path import isfile, join, splitext
+from re import findall
 from typing import List, Tuple
 
-DATA_PREFIX = "data"
+from docx2txt import process
+
+from hf_analysis.parameter import *
+
+
+def get_name_extension(path: str) -> Tuple[str, str]:
+    return splitext(path)
 
 
 def extract_content(path: str) -> str:
     """读取一个文件的全部信息"""
+    _, extension = get_name_extension(path)
+    if extension in [".docx", ".doc"]:
+        return extract_docx(path)
+    else:
+        return extract_text(path)
+
+
+def extract_text(path: str) -> str:
     with open(path, encoding="utf8") as f:
         return f.read()
+
+
+def extract_docx(path: str) -> str:
+    text = process(path)
+    return "\n".join(text)
 
 
 def load_suggestion_word(path: str) -> List[str]:
@@ -44,11 +64,14 @@ def prepare_data(root_path: str) -> List[Tuple[str, str]]:
 
 
 def get_text(path: str) -> str:
-    return "\n".join(line.split("|", 1)[-1].strip() for line in
-                     extract_content(path).split("\n") if
-                     not line.startswith("#"))
+    text = "".join(
+        line.split("|", 1)[-1].strip() for line in
+        extract_content(path).split("\n") if not line.startswith("#")
+    )
+    result = findall("(.*?[.。])", text)
+    return "\n".join(result)
 
 
 if __name__ == '__main__':
-    data = prepare_data("./data/output")
-    print(data)
+    r = prepare_data(join("./data", DATA_PATH))
+    print(r)

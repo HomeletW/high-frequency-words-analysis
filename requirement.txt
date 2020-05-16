@@ -1,8 +1,11 @@
 jieba
 matplotlib
 pandas
+xlrd
 numpy
 sklearn
 pdf2image
 Pillow
 tesserocr
+docx2txt
+textwrap3
