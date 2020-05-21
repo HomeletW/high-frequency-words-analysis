@@ -1,36 +1,24 @@
 # coding=utf-8
-from os import makedirs
-from os.path import exists, join
-from typing import Type
 
 # 引用必要库
 import jieba.analyse
-import matplotlib.font_manager as mfm
-import matplotlib.pyplot as plt
+import jieba.posseg
 
-from hf_analysis.parameter import *
-from hf_analysis.processing.prepare_data import prepare_data
 from hf_analysis.word.word_statistics import *
 
-# 画图环境准备
-font_path = "./resource/SourceHanSerifSC-Light.otf"
-prop = mfm.FontProperties(fname=font_path)
-shapes = ["v", "s", "h", "o", "*", "p", "P", "H", "+", "x", "X", "d", "D"]
-COMMENT_OFFSET = 10
-DEFAULT_EXTREMA = (110, -10)
-
-# 装载用户自定义字典
-jieba.load_userdict(suggestion_path)
-
 # 可用的提取器
-TF_IDF = jieba.analyse.extract_tags
-TEXT_RANK = jieba.analyse.textrank
+EXTRACTOR = {
+    TF_IDF: jieba.analyse.TFIDF,
+    TEXT_RANK: jieba.analyse.TextRank,
+}
 
 
-def extract(sentence: str,
+def extract(articles: Dict[str, str],
             whitelist_word: List[str],
-            num_wanted: int,
-            extractor=TEXT_RANK) -> Dict[str, int]:
+            blacklist_word: List[str],
+            extractor,
+            tracker,
+            num_wanted: int = None) -> Dict[str, Dict[str, Tuple[int, float]]]:
     """
     使用 jieba（中文分词）库，对文章进行关键词提取，使用 TextRank 或者 TF-IDF 算法。
 
@@ -44,150 +32,113 @@ def extract(sentence: str,
             -计算图中节点的PageRank，注意是无向带权图
 
     参数列表如下：
-    :param sentence: 文章本身
+    :param articles: 文章本身
     :param whitelist_word: 想要一定出现的关键词列表
+    :param blacklist_word: 想要一定不出现的关键词列表
     :param num_wanted: 想要的关键词的个数
+    :param tracker: 追踪器
     :param extractor: 用做提取器的算法，应该为（TF_IDF 或者 TEXT_RANK)
 
     返回参数如下：
     :return: 返回一个字典，键为关键词，值为关键词出现在文章里出现的次数
     """
-    # use jieba.analyse (tf-idf) or (TextRank)
-    seg_list = extractor(
-        sentence=sentence, topK=num_wanted, withWeight=False, allowPOS=(
-            "n",  # 普通名词
-            "nr", "PER",  # 人名
-            "nz",  # 专有名词
-            "ns", "LOC",  # 地名
-            "s",  # 处所名词
-            "nt", "ORG",  # 机构名
-            "nw",  # 作品名
+    if num_wanted is not None and num_wanted <= 0:
+        num_wanted = None
+    summary = {}
+    for name, article in articles.items():
+        # use jieba.analyse (tf-idf) or (TextRank)
+        tags = extractor.extract_tags(
+            sentence=article, topK=num_wanted, withWeight=True, allowPOS=(
+                "n",  # 普通名词
+                "nr", "PER",  # 人名
+                "nz",  # 专有名词
+                "ns", "LOC",  # 地名
+                "s",  # 处所名词
+                "nt", "ORG",  # 机构名
+                "nw",  # 作品名
+            )
         )
-    )
-    # use jieba.cut
-    segments = jieba.lcut(sentence=sentence)
-    # summaries
-    summary = {seg: segments.count(seg) for seg in seg_list}
-    # add suggestion word and whitelist word
-    summary.update({word: segments.count(word) for word in whitelist_word if
-                    word not in summary})
+        # summaries
+        word_summary = {tag: (article.count(tag), weight) for tag, weight in
+                        tags}
+        # add whitelist word
+        for word in whitelist_word:
+            if word not in word_summary:
+                word_summary[word] = (article.count(word), None)
+        # remove blacklist word
+        for word in blacklist_word:
+            word_summary.pop(word, None)
+        summary[name] = word_summary
+        tracker.tick()
+        tracker.tick_parent()
     return summary
 
 
-def summarise(path: str,
-              output_path: str,
+def summarise(data: List[Tuple[Dict[str, str], str, int]],
+              suggestion_word: List[str],
               whitelist_word: List[str],
               blacklist_word: List[str],
-              num_wanted: int,
-              size: Tuple[int, int],
-              extractor=TEXT_RANK,
-              statistics_analyzer: Type[StatisticalAnalyzer] = TrendAnalyzer,
-              *args, **kwargs) -> None:
+              tracker,
+              num_wanted: int = None,
+              extractor=TEXT_RANK) -> \
+        List[Tuple[Dict[str, Dict[str, Tuple[int, float]]], str, int]]:
     """
     总结所有的关键词汇
 
     参数列表如下：
-    :param path: 一个指向所有 data 文件的路径
-    :param output_path: 一个指向所有结果参数的输出路径
+    :param data: 数据
+    :param suggestion_word: 建议关键词列表
     :param whitelist_word: 想要一定出现的关键词列表
     :param blacklist_word: 想要一定不出现的关键词列表
+    :param tracker: 追踪器
     :param num_wanted: 想要的关键词的个数
-    :param size: 生成的图像大小,输出100倍像素的图像（例如：（12，6）生成图像为 1200px * 600px)
     :param extractor: 用做提取器的算法，应该为（TF_IDF 或者 TEXT_RANK)
-    :param statistics_analyzer: 用做分析器的统计分析器，应为 StatisticalAnalyzer 的子类
     """
-    # make sure output path is available
-    if not exists(output_path):
-        makedirs(output_path)
-    # prepare the data
-    data = prepare_data(path)
-    # extract the important word segment in format [(dict of words, label), ...]
-    seg = [
-        (extract(
-            content, whitelist_word, num_wanted * 10, extractor
-        ), name) for content, name in data
-    ]
-    # create the statistical analyzer
-    analyzer = statistics_analyzer.const(seg, whitelist_word, blacklist_word)
-    # analyze the data
-    labeled_words = analyzer.analyse(*args, **kwargs)
-    extrema = get_extrema(labeled_words)
-    for value, rank in zip(labeled_words, range(len(labeled_words))):
-        word, data, score = value
-        draw_once(word, data, output_path, f"{rank}_{word}", size, extrema)
-
-
-def get_extrema(data: List[Tuple[str, List[Tuple[int, str]], Any]]) -> \
-        Tuple[int, int]:
-    max_, min_ = DEFAULT_EXTREMA
-    for _, value, _ in data:
-        max_v, min_v = max(value, key=lambda a: a[0])[0], \
-                       min(value, key=lambda a: a[0])[0]
-        if max_ is None or max_v > max_:
-            max_ = max_v
-        if min_ is None or min_v < min_:
-            min_ = min_v
-    return min_, max_
-
-
-def draw_once(word: str,
-              data: List[Tuple[int, str]],
-              path: str,
-              file_name: str,
-              size: Tuple[int, int],
-              extrema: Tuple[int, int]) -> None:
-    """
-    展示一个图像来展示在数据中的高频词汇
-    """
-    fig = prepare_graph(word, size, 1, extrema)
-    # draw the graph
-    plt.plot(list(name for _, name in data), list(v for v, _ in data),
-             marker="v",
-             markerfacecolor="gray",
-             markersize=8,
-             c="black",
-             linewidth=2)
-    # draw the comment
-    for index, value in zip(range(len(data)), data):
-        plt.text(index, value[0] + COMMENT_OFFSET,
-                 s=str(value[0]), fontproperties=prop)
-    # save and exit
-    plt.savefig(join(path, file_name))
-    plt.close(fig)
-
-
-def prepare_graph(name: str,
-                  size: Tuple[int, int],
-                  extrema: Tuple[int, int]) -> plt.Figure:
-    fig = plt.figure(name, figsize=size, dpi=100)
-    ax = plt.axes()
-    for label in ax.get_xticklabels():
-        label.set_fontproperties(prop)
-    # Shrink current axis's height by 10% on the bottom
-    # box = ax.get_position()
-    # ax.set_position([box.x0, box.y0, box.width, box.height])
-    # ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
-    #           ncol=ncol, mode="expand", borderaxespad=0., prop=prop)
-    min_, max_ = extrema
-    ax.set_title(f"“{name}”的总结", fontproperties=prop)
-    ax.set_ylabel(f"“{name}”每年的数量", fontproperties=prop)
-    ax.set_ylim(min_, max_)
-    return fig
-
-
-def main():
-    summarise(
-        path=join("./data", DATA_PATH),
-        output_path=join("./data", RESULT_PATH),
-        whitelist_word=[],
-        blacklist_word=[],
-        num_wanted=7,
-        size=(12, 6),
-        extractor=TF_IDF,
-        statistics_analyzer=TrendAnalyzer,
-        # threshold=3,
+    # init the tracker
+    # the total progress contains:
+    #       each article in each year
+    total_article_count = sum(len(d) for d, _, _ in data)
+    tracker.init_parent_progress(
+        "抽取词汇父程序", 0, total_article_count
     )
-
-
-if __name__ == "__main__":
-    main()
+    tracker.log("正在初始化 jieba 中文分词库", prt=True)
+    jieba_instant = jieba.Tokenizer()
+    # apply the suggestion word to jieba
+    tracker.log("   正在装载 建议词汇 [word=[{},+{}个]]".format(
+        ",".join(suggestion_word[:10]),
+        0 if len(suggestion_word) < 10 else len(suggestion_word) - 10),
+        prt=True)
+    for word in suggestion_word:
+        jieba_instant.add_word(word)
+    # apply the whitelist word to jieba
+    tracker.log("   正在装载 白名单词汇 [word=[{},+{}个]]".format(
+        ",".join(whitelist_word[:10]),
+        0 if len(whitelist_word) < 10 else len(whitelist_word) - 10),
+        prt=True)
+    for word in whitelist_word:
+        jieba_instant.add_word(word)
+    # apply the blacklist word to jieba
+    tracker.log("   正在装载 黑名单词汇 [word=[{},+{}个]]".format(
+        ",".join(blacklist_word[:10]),
+        0 if len(blacklist_word) < 10 else len(blacklist_word) - 10),
+        prt=True)
+    for word in blacklist_word:
+        jieba_instant.del_word(word)
+    tracker.log("   正在抽取关键词汇", prt=True)
+    tracker.init_ticker("    进程", "正在抽取关键词汇", 0, total_article_count)
+    # extract the important word segment
+    word_extractor = EXTRACTOR[extractor]()
+    if extractor in [TEXT_RANK]:
+        word_extractor.tokenizer = jieba.posseg.POSTokenizer(jieba_instant)
+    else:
+        word_extractor.tokenizer = jieba_instant
+    seg = [
+        (extract(articles=content,
+                 whitelist_word=whitelist_word,
+                 blacklist_word=blacklist_word,
+                 extractor=word_extractor,
+                 num_wanted=num_wanted,
+                 tracker=tracker), category, order_index)
+        for content, category, order_index in data
+    ]
+    return seg

@@ -9,3 +9,4 @@ Pillow
 tesserocr
 docx2txt
 textwrap3
+pinyin

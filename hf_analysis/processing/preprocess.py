@@ -2,7 +2,7 @@ import ntpath
 from os import listdir, makedirs
 from os.path import abspath, exists, isfile, join
 from textwrap import wrap
-from typing import List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 import tesserocr
@@ -14,8 +14,7 @@ from hf_analysis.parameter import *
 from hf_analysis.processing.prepare_data import extract_content, \
     get_name_extension
 
-AVAILABLE_LANG = list(filter(lambda a: "/" not in a,
-                             tesserocr.get_languages(TESSDATA_PATH)[1]))
+AVAILABLE_LANG = list(tesserocr.get_languages(TESSDATA_PATH)[1])
 
 
 def process(path_to_index: str,
@@ -23,6 +22,7 @@ def process(path_to_index: str,
             output_folder: str,
             dpi: int,
             cov_format: str,
+            engine: bool,
             default_lang: str,
             tracker):
     """format 为 [(title, file_path, cat, sort, beg, end), ...]"""
@@ -30,6 +30,8 @@ def process(path_to_index: str,
     data_folder = join(output_folder, DATA_PATH)
     temp_folder = join(output_folder, TEMP_PATH)
     reso_folder = join(output_folder, RESOURCE_PATH)
+    if not exists(reso_folder):
+        raise ValueError("根目录没有 resource 文件夹！")
     if not exists(data_folder):
         makedirs(data_folder)
     # get the additional pram
@@ -59,19 +61,14 @@ def process(path_to_index: str,
     for path, setup in file_map.items():
         name, extension = get_name_extension(path)
         if extension in [".pdf"]:
-            tracker.log("正在处理 PDF 文件 : {} ...".format(path), prt=True)
+            tracker.log("正在处理 PDF 文件 : {}".format(path), prt=True)
             if not exists(temp_folder):
                 makedirs(temp_folder)
-            process_pdf(path, temp_folder, data_folder, dpi, cov_format,
+            process_pdf(path, temp_folder, data_folder, dpi, cov_format, engine,
                         default_lang, setup, tracker)
         else:
-            tracker.log("正在处理 文本 文件 : {} ...".format(path), prt=True)
+            tracker.log("正在处理 文本 文件 : {}".format(path), prt=True)
             process_text(path, data_folder, setup, tracker)
-    total_time = tracker.time_elapsed(use_time_accum=True)
-    tracker.clear_time_accum()
-    tracker.reset_ticker()
-    tracker.reset_parent()
-    tracker.log("处理完成！ 用时 : {} 秒".format(total_time), prt=True)
 
 
 def process_text(path_to_text: str,
@@ -82,11 +79,10 @@ def process_text(path_to_text: str,
     # create a file that include all data in this page
     for title, cat, sort, beg, end, parm in setup:
         if beg is not None or end is not None:
-            from hf_analysis.ui.tk_object import TRACKER_LOG_ERROR
             tracker.log("   目前文本文档不支持分页！", tp=TRACKER_LOG_ERROR, prt=True)
         name = "{}_{}_{}_{}.txt".format(DATA_PREFIX, sort, cat, title)
         content_path = join(data_folder, name)
-        tracker.log("   正在写入 {} -> {} ...".format(title, name), prt=True)
+        tracker.log("   正在写入 {} -> {}".format(title, name), prt=True)
         with open(content_path, "w+") as f:
             # write a div for easy identify
             f.write("#" + "=" * FORMAT_LENGTH + "\n")
@@ -100,30 +96,48 @@ def process_text(path_to_text: str,
             tracker.tick_parent(amount=amount)
 
 
-def pdf_to_jpeg(path_to_pdf: str, temp_folder: str, dpi: int, cov_format: str,
-                setup) -> \
-        List[str]:
+def scan_pdf(path_to_pdf: str,
+             temp_folder: str,
+             dpi: int,
+             cov_format: str,
+             engine: bool,
+             setup, tracker) -> Dict[int, str]:
+    tracker.log("   转换 pdf -> {}".format(cov_format), prt=True)
     # get the page range that we need to process
     first_page = min(r[3] for r in setup)
     last_page = max(r[4] for r in setup)
     # find in the temp folder that is the pdf processed already
     name, _ = get_name_extension(ntpath.basename(path_to_pdf))
     # find the existing file
-    files = [f for f in listdir(temp_folder) if isfile(join(temp_folder, f))]
-    processed = {extract_page_number(f): join(temp_folder, f) for f in files if
-                 f.startswith(name)}
+    processed = {}
+    for f in listdir(temp_folder):
+        p = join(temp_folder, f)
+        if not isfile(p):
+            continue
+        info = extract_info(f)
+        if info is None:
+            continue
+        prefix, f_dpi, page_number, format_ = info
+        if prefix == name and f_dpi == dpi and format_.endswith(cov_format):
+            # we got this file already
+            processed[page_number] = p
     subsets, relev = get_relevant_subset(processed, first_page, last_page)
-    name_generator = ("{}".format(name) for _ in range(1))
+    total_page = sum(e - s + 1 for s, e in subsets)
+    name_generator = ("{}-{}".format(name, dpi) for _ in range(total_page))
+    if total_page != 0:
+        tracker.init_ticker("   进程", "正在扫描 PDF", 0, total_page)
     # iterate through the subset
-    paths = [processed[index] for index in relev]
+    paths = {index: processed[index] for index in relev}
     for start, end in subsets:
         temp_images_path = convert_from_path(
             pdf_path=path_to_pdf,
             dpi=dpi, output_folder=temp_folder,
             first_page=start, last_page=end,
-            fmt=cov_format, paths_only=True, output_file=name_generator
+            fmt=cov_format, paths_only=True, output_file=name_generator,
+            use_pdftocairo=engine
         )
-        paths.extend(temp_images_path)
+        paths.update({extract_page_number(p): p for p in temp_images_path})
+        tracker.tick(amount=end - start + 1)
     return paths
 
 
@@ -151,17 +165,17 @@ def process_pdf(path_to_pdf: str,
                 data_folder: str,
                 dpi: int,
                 cov_format: str,
+                engine: bool,
                 default_lang: str,
                 setup: List[Tuple[str, str, int, int, int, dict]],
                 tracker) -> None:
-    tracker.log("   转换 PDF -> {} ...".format(cov_format), prt=True)
-    tracker.init_ticker("   进程", "正在扫描 PDF", 0, 1)
     # first convert all pages of pdf to jpeg
-    temp_img_path = pdf_to_jpeg(path_to_pdf, temp_folder, dpi, cov_format,
-                                setup)
-    tracker.tick(amount=1)
-    # according to the divisor map, divide the pages to corresponding paragraph
-    page_num_map = {extract_page_number(p): p for p in temp_img_path}
+    page_num_map = scan_pdf(path_to_pdf,
+                            temp_folder,
+                            dpi,
+                            cov_format,
+                            engine,
+                            setup, tracker)
     # Use OCR on the images
     with PyTessBaseAPI(path=TESSDATA_PATH, lang=default_lang) as api:
         for title, cat, sort, beg, end, parm in setup:
@@ -171,7 +185,7 @@ def process_pdf(path_to_pdf: str,
             # create a txt file that include all data in this page
             name = "{}_{}_{}_{}.txt".format(DATA_PREFIX, sort, cat, title)
             content_path = join(data_folder, name)
-            tracker.log("   正在识别 [lang={}] {} -> {} ...".format(
+            tracker.log("   正在识别 [lang={}] {} -> {}".format(
                 api.GetInitLanguagesAsString(), title, name), prt=True)
             with open(content_path, "w+") as f:
                 # write header
@@ -180,8 +194,13 @@ def process_pdf(path_to_pdf: str,
                                     end - beg + 1)
                 for i in range(beg, end + 1):
                     page_path = page_num_map[i]
-                    content = get_content(api, page_path, image_crop_pram)
-                    avg_conf = sum(conf for _, conf in content) / len(content)
+                    content = get_content(api, page_path, image_crop_pram,
+                                          tracker)
+                    if len(content) != 0:
+                        avg_conf = sum(conf for _, conf in content) / len(
+                            content)
+                    else:
+                        avg_conf = 0
                     # write a div for easy identify
                     f.write(
                         "#" + " 页码: {0:}, 平均可信度: {1:3.2f} ".format(
@@ -199,7 +218,7 @@ def process_pdf(path_to_pdf: str,
 
 
 def get_content(api, img_path: str,
-                image_crop_pram: Tuple[int, int, int, int]) -> \
+                image_crop_pram: Tuple[int, int, int, int], tracker) -> \
         List[Tuple[str, float]]:
     # first we do some pre-processing on the image
     img = Image.open(img_path)
@@ -215,11 +234,15 @@ def get_content(api, img_path: str,
     ri = api.GetIterator()
     level = RIL.TEXTLINE
     for r in iterate_level(ri, level):
-        line = r.GetUTF8Text(level)
-        conf = r.Confidence(level)
-        # process the text, remove the space, and newline
-        line = line.replace(" ", "").replace("\n", "")
-        page_text.append((line, conf))
+        try:
+            line = r.GetUTF8Text(level)
+            conf = r.Confidence(level)
+            # process the text, remove the space, and newline
+            line = line.replace(" ", "").replace("\n", "")
+            page_text.append((line, conf))
+        except RuntimeError as e:
+            tracker.log("No text Returned on this line.", tp=TRACKER_LOG_ERROR,
+                        exc_info=e)
     return page_text
 
 
@@ -273,16 +296,13 @@ def process_pram(s: list) -> dict:
 
 def extract_page_number(path: str) -> int:
     name = ntpath.basename(path).rsplit(".", maxsplit=1)[0]
-    return int(name.split("-")[1])
+    return int(name.split("-")[2])
 
 
-if __name__ == "__main__":
-    from hf_analysis.ui.tk_object import ProgressTracker
-
-    t = ProgressTracker(True, None)
-    process("./data/debug_index.xlsx",
-            "./data/additioanl_pram.xlsx",
-            "./data",
-            300,
-            "chi_sim",
-            t)
+def extract_info(path: str) -> Optional[Tuple[str, int, int, str]]:
+    name, format_ = ntpath.basename(path).rsplit(".", maxsplit=1)
+    seg = name.split("-")
+    if len(seg) != 3:
+        return None
+    prefix, dpi, page_number = seg
+    return prefix, int(dpi), int(page_number), format_
