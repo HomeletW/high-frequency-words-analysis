@@ -1,0 +1,31 @@
+{
+    "path_root": "/home/homelet/Desktop/\u6570\u636e",
+    "path_index": "/home/homelet/Desktop/\u6570\u636e/debug_index_2.xlsx",
+    "path_additional_parm": "/home/homelet/Desktop/\u6570\u636e/additioanl_pram.xlsx",
+    "pdf_engine": false,
+    "pdf_cov_format": "tiff",
+    "pdf_dpi": 300,
+    "ocr_tessdata_path": ".././tessdata/best/.",
+    "ocr_default_lang": "chi_sim",
+    "action_auto_next_step": true,
+    "analyze_show_stat_detail": true,
+    "output_path": "/home/homelet/Desktop/output.xlsx",
+    "analyze_num_wanted": 0,
+    "analyze_extractor": "tf-idf",
+    "analyze_ALLOW": [
+        "n",
+        "nr",
+        "nz",
+        "PER",
+        "ns",
+        "LOC",
+        "s",
+        "nt",
+        "ORG",
+        "nw"
+    ],
+    "analyze_suggestion": [],
+    "analyze_whitelist": [],
+    "analyze_blacklist": [],
+    "analyze_stat_analyzer": "trend_analyzer"
+}
