@@ -121,8 +121,8 @@ def scan_pdf(path_to_pdf: str,
     subsets, relev = get_relevant_subset(processed, first_page, last_page)
     total_page = sum(e - s + 1 for s, e in subsets)
     name_generator = ("{}-{}".format(name, dpi) for _ in range(total_page))
-    tracker.set_indeterminate(True)
     tracker.update_disc_fill("扫描 {}".format(basename(path_to_pdf)))
+    tracker.set_indeterminate(True)
     # iterate through the subset
     paths = {index: processed[index] for index in relev}
     for start, end in subsets:

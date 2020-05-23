@@ -445,16 +445,16 @@ class CentralProgressBarFrame(BaseFrame):
                     mode="indeterminate"
                 )
                 self.progress_bar_current.start()
+                message = "{} :{}".format(
+                    process_disc,
+                    " " + (disc_fill if disc_fill is not None else ""),
+                )
+                self.label_var.set(message)
             else:
                 self.progress_bar_current.stop()
                 self.progress_bar_current.config(
                     mode="determinate"
                 )
-            message = "{} :{}".format(
-                process_disc,
-                " " + (disc_fill if disc_fill is not None else ""),
-            )
-            self.label_var.set(message)
 
 
 class CentralActionFrame(BaseFrame):
