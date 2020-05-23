@@ -3,7 +3,7 @@ from ui.parm_field import *
 
 class MainApplication:
     def __init__(self, tk_instance, info_handler,
-                 title="HF Word Analysis", width=780, height=750):
+                 title="高频词汇分析", width=780, height=750):
         self.root = tk_instance
         self.root.minsize(width, height)
         screen_width = self.root.winfo_screenwidth()

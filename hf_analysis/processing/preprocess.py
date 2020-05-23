@@ -10,9 +10,6 @@ from tesserocr import PyTessBaseAPI, RIL, iterate_level
 from processing.load_data import *
 
 
-# AVAILABLE_LANG = list(tesserocr.get_languages(best)[1])
-
-
 def process(path_to_index: str,
             path_to_additional_parm: str,
             output_folder: str,
