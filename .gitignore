@@ -9,3 +9,9 @@ data
 
 # log
 log
+
+# egg
+.eggs
+
+# default.json
+default.json
