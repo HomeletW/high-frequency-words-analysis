@@ -57,7 +57,7 @@ def prepare_data(root_path: str, index_path: str, tracker) -> \
                               tracker=tracker)
     index_file_name = [
         "{}_{}_{}_{}".format(DATA_PREFIX, sort_index, category, title) for
-        title, _, category, sort_index, _, _ in index_map
+        title, _, category, sort_index, _, _, _ in index_map
     ]
     tracker.init_ticker("   进程", "正在处理", 0, len(dirs))
     for file_name in dirs:

@@ -422,7 +422,7 @@ class EditFieldPair(InfoPair):
         self.button = tk.Button(master=self, text="编辑 {}".format(self.name),
                                 command=self._on_press)
         self.text_field = tk.Text(
-            master=self, state=tk.DISABLED
+            master=self, state=tk.DISABLED, relief=tk.SUNKEN, borderwidth=2
         )
 
     def _on_press(self):
@@ -685,7 +685,7 @@ class ButtonLabelPair(InfoPair):
                               anchor=tk.W)
         self.del_button = tk.Button(master=self, text="X",
                                     command=self.label_del_info, fg="red")
-        self.label.bind("<Button-1>", self.label_show_info)
+        self.label.bind("<<Double-Button-1>>", self.label_show_info)
 
     def place_items(self):
         self.size_conf.place([
@@ -913,7 +913,7 @@ class ProgressTracker:
             mode=TRACKER_SET_INDETERMINATE,
             indeterminate=indeterminate,
             process_disc=self._process_disc,
-            disc_fill=self._process_disc_fill,
+            process_disc_fill=self._process_disc_fill,
         )
 
     def clear_time_accum(self):

@@ -3,7 +3,7 @@ from ui.parm_field import *
 
 class MainApplication:
     def __init__(self, tk_instance, info_handler,
-                 title="HF Word Analysis", width=690, height=780):
+                 title="HF Word Analysis", width=780, height=750):
         self.root = tk_instance
         self.root.minsize(width, height)
         screen_width = self.root.winfo_screenwidth()
@@ -57,7 +57,7 @@ class InfoFrame(tk.Frame):
 
     def add_items(self):
         divided = self.size_conf.divide((
-            (23, 6, 4),  # the main section
+            (23, 1, 1),  # the main section
             (6, 1),  # the action center
             (1, 1)  # the status bar
         ), spacing=5, internal=False)
@@ -164,7 +164,7 @@ class LeftPramFrame(BaseFrame):
 
 class CentralFrame(BaseFrame):
     """
-    [ Instruction Field ]
+    # [ Instruction Field ]
     [ Progress Field ]
     [ Action Field ]
     ====
@@ -191,8 +191,8 @@ class CentralFrame(BaseFrame):
     def add_items(self, *args, **kwargs):
         divided = self.size_conf.divide((
             # (10, 1),
-            (2, 1),
-            (2, 1),
+            (1, 1),
+            (1, 1),
         ), spacing=DEFAULT_SPACING, internal=True)
         # self.instruction_field = CentralInstructionFrame(
         #     master=self, size_config=divided[0][0],

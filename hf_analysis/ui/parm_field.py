@@ -369,7 +369,7 @@ class CentralProgressBarFrame(BaseFrame):
 
     def add_items(self, *args, **kwargs):
         self.size_conf.divide((
-            (1, 1),
+            (2, 1),
             (1, 1),
         ), spacing=DEFAULT_SPACING, internal=True)
         self.label_var = tk.StringVar()
