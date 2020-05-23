@@ -2,14 +2,21 @@ import sys
 import tkinter
 import tkinter.messagebox as messagebox
 
+from hf_analysis.parameter import INFO_PATCH
 from hf_analysis.ui.UI import MainApplication
 from hf_analysis.ui.tk_object import InfoHandler, TRACKER_LOG_ERROR
 
 sys.path.append("../")
 
+PATCH = "V 0.1"
+
 
 def main():
     info_handler = InfoHandler()
+    info_handler.register_field(
+        None, INFO_PATCH, "",
+    )
+    info_handler.put_field(INFO_PATCH, PATCH)
     tk = tkinter.Tk()
     application = MainApplication(tk, info_handler)
     tracker = application.get_tracker()

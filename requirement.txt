@@ -1,5 +1,4 @@
 jieba
-matplotlib
 pandas
 xlrd
 numpy
@@ -10,3 +9,4 @@ tesserocr
 docx2txt
 textwrap3
 pinyin
+XlsxWriter

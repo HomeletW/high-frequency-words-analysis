@@ -13,11 +13,11 @@ from os import environ, makedirs
 from os.path import abspath, basename, exists, expanduser, isdir, join, split
 from typing import List, Tuple
 
-import hf_analysis.processing.preprocess as preprocess
 from hf_analysis.parameter import *
-from hf_analysis.processing import prepare_data
-from hf_analysis.processing.prepare_data import load_words
-from hf_analysis.word import word_analysis, word_statistics
+from hf_analysis.processing import load_data, output
+from hf_analysis.processing import preprocess
+from hf_analysis.processing import word_extraction, word_statistics
+from hf_analysis.processing.load_data import load_words
 
 
 def get_home_directory():
@@ -31,11 +31,6 @@ def get_home_directory():
         return home_dir
     else:
         return "/"
-
-
-DEFAULT_HEIGHT = 30
-DEFAULT_WIDTH = 200
-DEFAULT_SPACING = 5
 
 
 class Sizeable:
@@ -68,11 +63,107 @@ class InfoPair(tk.Frame, Sizeable):
         return self.size_conf.total_size()
 
 
+class CheckButtonDialog(tk.Toplevel):
+    def __init__(self, master, title, desc, default_value, options):
+        self.options = {key: (value, tk.BooleanVar()) for key, value in
+                        options.items()}
+        # determine what the size is
+        # max item in a line is 5
+        line, tail = divmod(len(options), 5)
+        t_line = line + (1 if tail > 0 else 0)
+        height = DEFAULT_SPACING * 3 + 40 + t_line * 40 + 40
+        self.size_config = TopDownSizeConfig(width=500, height=height)
+        conf = [(1, 1)] + [(1, 1, 1, 1, 1, 1) for _ in range(t_line)] + [
+            (1, 1, 1,)]
+        self.size_config.divide(
+            conf,
+            spacing=DEFAULT_SPACING, internal=False)
+        width, height = self.size_config.total_size()
+        super().__init__(master=master, width=width, height=height)
+        self.transient(master)
+        self.title(title)
+        self.resizable(0, 0)
+        self.main_frame = None
+        self.label = None
+        self.checkboxes = []
+        self.save_button = None
+        self.cancel_button = None
+        self.desc = desc
+        self.default_value = default_value
+        # self.values = [i for i in default_value]
+        self.add_items()
+        self.place_items()
+        self.set(self.default_value)
+        self.grab_set()
+        self.initial_focus = self.main_frame
+        self.protocol("WM_DELETE_WINDOW", self.cancel)
+        # self.geometry("+%d+%d" % (master.winfo_rootx() + 50,
+        #                           master.winfo_rooty() + 50))
+
+    def start(self):
+        if not self.initial_focus:
+            self.initial_focus = self
+        self.initial_focus.focus_set()
+        self.update()
+        self.deiconify()
+        self.wait_window(self)
+
+    def add_items(self):
+        self.main_frame = tk.Frame(master=self)
+        self.label = tk.Label(master=self.main_frame, text=self.desc,
+                              anchor=tk.W)
+        for desc, var in self.options.values():
+            self.checkboxes.append(
+                tk.Checkbutton(
+                    master=self.main_frame, text=desc, onvalue=True,
+                    offvalue=False, variable=var, anchor=tk.W)
+            )
+        self.save_button = tk.Button(
+            master=self.main_frame, text="确认", command=self.save)
+        self.cancel_button = tk.Button(
+            master=self.main_frame, text="取消", command=self.cancel)
+        # bind some keystroke for easy operation
+        self.bind("<Return>", self.save)
+        self.bind("<Escape>", self.cancel)
+
+    def place_items(self):
+        width, height = self.size_config.total_size()
+        self.main_frame.place(x=0, y=0, width=width, height=height)
+        layout = [[self.label]] + [
+            self.checkboxes[i: i + 5]
+            for i in range(0, len(self.checkboxes), 5)] + [
+                     [self.save_button, self.cancel_button]]
+        self.size_config.place(layout)
+
+    def cancel(self, _=None):
+        self.set(self.default_value)
+        self.master.focus_set()
+        self.destroy()
+
+    def save(self, _=None):
+        self.master.focus_set()
+        self.destroy()
+
+    def get(self):
+        return [key for key, value in self.options.items() if value[1].get()]
+
+    def set(self, values):
+        for key, value in self.options.items():
+            _, var = value
+            if key in values:
+                var.set(True)
+            else:
+                var.set(False)
+
+
 class SelectionDialog(tk.Toplevel):
-    def __init__(self, master, title, default_value, editable=True):
+    def __init__(self, master, title, default_value, options=None,
+                 editable=True):
+        """Options: {value: desc}"""
         self.size_config = TopDownSizeConfig(width=400, height=500)
         width, height = self.size_config.total_size()
         super().__init__(master=master, width=width, height=height)
+        self.options = options
         self.editable = editable
         self.transient(master)
         self.title(title)
@@ -85,6 +176,7 @@ class SelectionDialog(tk.Toplevel):
         self.import_button = None
         self.save_button = None
         self.cancel_button = None
+        self.dialog = None
         self.default_value = default_value
         self.prev_dir = DEFAULT_DIR
         self.values = [i for i in default_value]
@@ -130,7 +222,6 @@ class SelectionDialog(tk.Toplevel):
             yscrollcommand=self.scrollbar.set
         )
         self.scrollbar.config(command=self.table.yview)
-
         # bind some keystroke for easy operation
         self.bind("<plus>", self.add)
         self.bind("<BackSpace>", self.minus)
@@ -141,6 +232,8 @@ class SelectionDialog(tk.Toplevel):
         if not self.editable:
             self.add_button.config(state=tk.DISABLED)
             self.minus_button.config(state=tk.DISABLED)
+            self.import_button.config(state=tk.DISABLED)
+        if self.options is not None:
             self.import_button.config(state=tk.DISABLED)
 
     def place_items(self):
@@ -154,19 +247,27 @@ class SelectionDialog(tk.Toplevel):
 
     def sync_table(self):
         self.table.delete(0, tk.END)
-        for v in self.values:
-            self.table.insert(tk.END, v)
+        if self.options is None:
+            for v in self.values:
+                self.table.insert(tk.END, v)
+        else:
+            for v in self.values:
+                self.table.insert(tk.END, self.options[v])
 
     def sync_values(self):
-        self.values = self.table.get(0, tk.END)[::]
+        # else we don't need to sync
+        if self.options is None:
+            self.values = self.table.get(0, tk.END)[::]
 
     def edit(self, _=None):
-        if not self.editable:
+        if not self.editable or self.options is not None:
             return
         selected = self.table.curselection()
         if len(selected) != 1:
             return
-        s = simpledialog.askstring(parent=self, title="更改", prompt="请输入新的词汇",
+        # TODO ASK STRING BROKE, POSSIBLE FIX: BUILD OWN CLASS
+        s = simpledialog.askstring(parent=self, title="更改",
+                                   prompt="请输入新的词汇",
                                    initialvalue=self.table.get(selected[0]))
         if not s:
             return
@@ -177,12 +278,25 @@ class SelectionDialog(tk.Toplevel):
     def add(self, _=None):
         if not self.editable:
             return
-        s = simpledialog.askstring(parent=self, title="添加一个词汇", prompt="请输入词汇")
-        if not s:
-            return
-        self.values.append(s)
-        self.sync_table()
-        self.table.see(tk.END)
+        if self.options is not None:
+            self.dialog = CheckButtonDialog(
+                master=self, title="添加", desc="请选择要添加的项",
+                default_value=self.get(),
+                options=self.options
+            )
+            self.dialog.start()
+            self.set(self.dialog.get())
+            self.dialog = None
+        else:
+            if not self.editable:
+                return
+            s = simpledialog.askstring(parent=self, title="添加一个词汇",
+                                       prompt="请输入词汇")
+            if not s:
+                return
+            self.values.append(s)
+            self.sync_table()
+            self.table.see(tk.END)
 
     def minus(self, _=None):
         if not self.editable:
@@ -197,12 +311,25 @@ class SelectionDialog(tk.Toplevel):
         if ret is None or not ret:
             return
         all_items = self.table.get(0, tk.END)
-        self.values = [all_items[index] for index in range(len(all_items))
-                       if index not in selected]
+        if self.options is None:
+            self.values = [all_items[index] for index in range(len(all_items))
+                           if index not in selected]
+        else:
+            self.values = [
+                self.get_key(all_items[index]) for index in
+                range(len(all_items))
+                if index not in selected
+            ]
         self.sync_table()
 
+    def get_key(self, v):
+        for k, value in self.options.items():
+            if value == v:
+                return k
+        return None
+
     def import_(self, _=None):
-        if not self.editable:
+        if not self.editable or self.options is not None:
             return
         p = ask_open_file(
             master=self, title="导入",
@@ -210,6 +337,7 @@ class SelectionDialog(tk.Toplevel):
             initdir=self.prev_dir)
         if not p:
             return
+        self.prev_dir, _ = split(p)
         if len(self.values) != 0:
             # ask the user to delete them or not
             ret = messagebox.askyesnocancel(
@@ -230,11 +358,15 @@ class SelectionDialog(tk.Toplevel):
         self.sync_table()
 
     def cancel(self, _=None):
+        if self.dialog is not None:
+            self.dialog.cancel()
         self.values = self.default_value
         self.master.focus_set()
         self.destroy()
 
     def save(self, _=None):
+        if self.dialog is not None:
+            self.dialog.cancel()
         self.sync_values()
         self.master.focus_set()
         self.destroy()
@@ -271,14 +403,14 @@ class TwoStageButton(tk.Button):
 
 
 class EditFieldPair(InfoPair):
-    def __init__(self, master, name, size_conf):
+    def __init__(self, master, name, size_conf, options=None):
         super().__init__(master, size_conf)
         self.name = name
         self.button = None
         self.text_field = None
         self.dialog = None
+        self.options = options
         self.values = []
-        self.lock = threading.Lock()
         self.add_items()
         self.place_items()
 
@@ -297,10 +429,10 @@ class EditFieldPair(InfoPair):
         if self.dialog is None:
             self.dialog = SelectionDialog(master=self,
                                           title="编辑 {}".format(self.name),
-                                          default_value=self.values)
-            with self.lock:
-                self.dialog.start()
-                self.set(self.dialog.get())
+                                          default_value=self.values,
+                                          options=self.options)
+            self.dialog.start()
+            self.set(self.dialog.get())
             self.dialog = None
 
     def place_items(self):
@@ -324,9 +456,14 @@ class EditFieldPair(InfoPair):
 
     def set(self, value):
         self.values = value
+        if self.options is not None:
+            display_values = [self.options[v] for v in value]
+        else:
+            display_values = value
+
         self.text_field.config(state=tk.NORMAL)
         self.text_field.delete(1.0, tk.END)
-        self.text_field.insert(tk.END, ",\n".join(value))
+        self.text_field.insert(tk.END, ",\n".join(display_values))
         self.text_field.config(state=tk.DISABLED)
 
     def get(self):
@@ -415,7 +552,67 @@ class LabelScalePair(InfoPair):
         return self.scale.get()
 
 
-class RadioButtonPair(InfoPair):
+class CheckButtonsPair(InfoPair):
+    """
+    [ label ]
+    [ buttons ... ]
+    """
+
+    def __init__(self, master, label_text, options, size_conf):
+        """
+        variables : [ ("text", "value"), ... ]
+        """
+        super().__init__(master, size_conf)
+        self.label = None
+        self.options = {value: (name, tk.BooleanVar()) for name, value in
+                        options}
+        self.buttons = []
+        self.add_items(label_text)
+        self.place_items()
+
+    def add_items(self, label_text):
+        self.size_conf.divide((
+            (1, 1),
+            (2,) + tuple(1 for _ in range(len(self.options))),
+        ), spacing=DEFAULT_SPACING, internal=True)
+        self.label = tk.Label(master=self, text=label_text)
+        for value, t in self.options.items():
+            name, var = t
+            b = tk.Checkbutton(
+                master=self, text=name, variable=var, onvalue=True,
+                offvalue=False)
+            self.buttons.append(b)
+
+    def place_items(self):
+        self.size_conf.place([
+            [self.label],
+            self.buttons
+        ])
+
+    def config(self, *args, **kwargs):
+        self.label.config(*args, **kwargs)
+        for b in self.buttons:
+            b.config(*args, **kwargs)
+
+    def set(self, values):
+        values = values.split("+")
+        for value, t in self.options.items():
+            _, var = t
+            if value in values:
+                var.set(True)
+            else:
+                var.set(False)
+
+    def get(self):
+        val = []
+        for value, t in self.options.items():
+            _, var = t
+            if var.get():
+                val.append(value)
+        return "+".join(val)
+
+
+class RadioButtonsPair(InfoPair):
     """
     [ label ]
     [ buttons ... ]
@@ -470,6 +667,7 @@ class ButtonLabelPair(InfoPair):
         super().__init__(master, size_conf)
         self.button = None
         self.label = None
+        self.del_button = None
         self.text_var = None
         self._text_value = ""
         self.mandatory_field = mandatory_field
@@ -478,24 +676,26 @@ class ButtonLabelPair(InfoPair):
 
     def add_items(self, button_text, button_func):
         self.size_conf.divide((
-            (1, 2, 3),
+            (1, 7, 11, 2),
         ), spacing=DEFAULT_SPACING, internal=True)
         self.button = tk.Button(master=self, text=button_text,
                                 command=button_func, anchor=tk.W)
         self.text_var = tk.StringVar()
         self.label = tk.Label(master=self, textvariable=self.text_var,
                               anchor=tk.W)
-        self.label.bind("<Button-3>", self.label_del_info)
+        self.del_button = tk.Button(master=self, text="X",
+                                    command=self.label_del_info, fg="red")
         self.label.bind("<Button-1>", self.label_show_info)
 
     def place_items(self):
         self.size_conf.place([
-            [self.button, self.label]
+            [self.button, self.label, self.del_button]
         ])
 
     def config(self, *args, **kwargs):
         self.button.config(*args, **kwargs)
         self.label.config(*args, **kwargs)
+        self.del_button.config(*args, **kwargs)
 
     def set(self, value):
         path_name, file_name = split(value)
@@ -520,7 +720,7 @@ class ButtonLabelPair(InfoPair):
     def set_button_fg(self, color):
         self.button.config(fg=color)
 
-    def label_show_info(self, _):
+    def label_show_info(self, _=None):
         message = self.get()
         if message != "" and message != "-":
             message = "目录为：\n" + message
@@ -529,7 +729,7 @@ class ButtonLabelPair(InfoPair):
         tk.messagebox.showinfo(parent=self, title="详情",
                                message=message)
 
-    def label_del_info(self, _):
+    def label_del_info(self, _=None):
         message = self.get()
         if message != "" and message != "-":
             ret = tk.messagebox.askyesnocancel(
@@ -649,37 +849,24 @@ class ProgressTracker:
         )
         self._logger = logging.getLogger("Main Logger")
         self._logger.setLevel(logging.DEBUG)
-        # parent progress
-        self._parent_process_name = None
-        self._parent_init_tick = None
-        self._parent_total_tick = None
-        self._parent_current_tick = None
         # tick
         self._process_name = None
         self._process_disc = None
+        self._process_disc_fill = None
         self._init_tick = None
         self._total_tick = None
         self._current_tick = None
         self._start_time = None
         self._end_time = None
+        self._down_time_start = 0
+        self._down_time_accum = 0
         self._time_accum = 0
-
-    def init_parent_progress(self, progress_name, init_tick, total_tick):
-        if self._parent_current_tick is None or \
-                self._parent_current_tick == self._parent_total_tick:
-            self._parent_process_name = progress_name
-            self._parent_init_tick = init_tick
-            self._parent_total_tick = total_tick
-            self._parent_current_tick = init_tick
-            self._update(mode=TRACKER_PARENT_INIT,
-                         process_name=self._parent_process_name,
-                         total_tick=self._parent_total_tick,
-                         init_tick=self._parent_init_tick)
 
     def init_ticker(self, process_name, process_disc, init_tick, total_tick):
         if self._current_tick is None or self._current_tick == self._total_tick:
             self._process_name = process_name
             self._process_disc = process_disc
+            self._process_disc_fill = None
             self._init_tick = init_tick
             self._total_tick = total_tick
             self._current_tick = init_tick
@@ -694,25 +881,45 @@ class ProgressTracker:
             return True
         return False
 
-    def reset_parent(self):
-        self._parent_process_name = None
-        self._parent_init_tick = None
-        self._parent_total_tick = None
-        self._parent_current_tick = None
+    def update_disc_fill(self, fill):
+        self._process_disc_fill = fill
+        time_remain = self.predict_time_remaining()
+        self._update(mode=TRACKER_TICK_DESC_UPDATE,
+                     process_disc=self._process_disc,
+                     process_disc_fill=fill,
+                     total_tick=self._total_tick,
+                     current_tick=self._current_tick,
+                     time_remain=time_remain)
 
     def reset_ticker(self):
+        self._down_time_start = 0
+        self._down_time_accum = 0
         self._process_name = None
         self._process_disc = None
+        self._process_disc_fill = None
         self._init_tick = None
         self._total_tick = None
         self._current_tick = None
         self._start_time = None
         self._end_time = None
 
+    def set_indeterminate(self, indeterminate):
+        if indeterminate:
+            # the down time has started
+            self._down_time_start = time.time()
+        else:
+            self._down_time_accum = time.time() - self._down_time_start
+        self._update(
+            mode=TRACKER_SET_INDETERMINATE,
+            indeterminate=indeterminate,
+            process_disc=self._process_disc,
+            disc_fill=self._process_disc_fill,
+        )
+
     def clear_time_accum(self):
         self._time_accum = 0
 
-    def tick(self, amount: int = 1, disc_fill: str = None) -> None:
+    def tick(self, amount: int = 1) -> None:
         if amount <= 0:
             return
         prev = self._current_tick
@@ -732,15 +939,8 @@ class ProgressTracker:
                      total_tick=self._total_tick,
                      current_tick=self._current_tick,
                      amount=self._current_tick - prev,
-                     disc_fill=disc_fill,
+                     disc_fill=self._process_disc_fill,
                      end=end)
-
-    def tick_parent(self, amount: int = 1) -> None:
-        if amount <= 0:
-            return
-        self._parent_current_tick += amount
-        self._update(mode=TRACKER_PARENT_TICK,
-                     current_tick=self._parent_current_tick)
 
     def log(self, message: str, tp=TRACKER_LOG_INFO,
             exc_info=None,
@@ -785,9 +985,11 @@ class ProgressTracker:
     def predict_time_remaining(self):
         if self._start_time is None:
             return ""
-        time_elapsed = time.time() - self._start_time
-        average_time_use_per_tick = time_elapsed / (
-                self._current_tick - self._init_tick)
+        time_elapsed = time.time() - self._start_time - self._down_time_accum
+        tick_passed = self._current_tick - self._init_tick
+        if tick_passed == 0:
+            return "未知"
+        average_time_use_per_tick = time_elapsed / tick_passed
         time_remaining = average_time_use_per_tick * (
                 self._total_tick - self._current_tick)
         return self._format_time(round(time_remaining))
@@ -972,11 +1174,13 @@ class ThreadWrapper:
 
     def _starting_process(self):
         if self._start_process is not None:
-            self._start_process()
+            return self._start_process()
+        return True
 
     def _ending_process(self):
         if self._end_process is not None:
-            self._end_process()
+            return self._end_process()
+        return True
 
     def _check_process(self):
         if self._thread is not None:
@@ -1015,7 +1219,6 @@ class ThreadWrapper:
                 self._master.after(100, self._check_process)
 
     def run(self, ask=True):
-
         if self._thread is None:
             # if no such process is running,
             # we ask user if we can create one
@@ -1028,7 +1231,8 @@ class ThreadWrapper:
                 )
                 if ret is None or not ret:
                     return
-            self._starting_process()
+            if not self._starting_process():
+                return
             with self._lock:
                 self._thread = self._thread_type(self._tracker,
                                                  self._info_handler)
@@ -1160,10 +1364,10 @@ class InfoHandler:
             with open(path, "w+") as js:
                 json.dump(value, js, indent=4)
         except Exception as e:
-            tracker.log("Fail to write JSON ({})".format(path),
+            tracker.log("记录配置失败!",
                         tp=TRACKER_LOG_ERROR, exc_info=e, prt=True)
             return
-        tracker.log("Saved JSON to {}".format(path),
+        tracker.log("记录配置成功!",
                     tp=TRACKER_LOG_INFO, prt=True)
 
     def load_from_json(self, tracker):
@@ -1179,10 +1383,10 @@ class InfoHandler:
                         "Skipping {}, since it is not registered!".format(key),
                         tp=TRACKER_LOG_INFO, prt=True)
         except Exception as e:
-            tracker.log("Fail to load JSON ({}), using default.".format(path),
+            tracker.log("加载配置失败, 使用默认配置!",
                         tp=TRACKER_LOG_ERROR, exc_info=e, prt=True)
             return
-        tracker.log("Loaded from JSON ({})".format(path),
+        tracker.log("加载配置成功!",
                     tp=TRACKER_LOG_INFO, prt=True)
 
 
@@ -1204,6 +1408,7 @@ class PreprocessThread(threading.Thread):
             INFO_PDF_FORMAT,
             INFO_PDF_DPI,
             INFO_OCR_DEF_LANG,
+            INFO_OCR_TESSDATA_PATH,
         ]
         try:
             self._info_handler.freeeze(vars_)
@@ -1216,6 +1421,7 @@ class PreprocessThread(threading.Thread):
             cov_format = self._info_handler.get(INFO_PDF_FORMAT)
             dpi = self._info_handler.get(INFO_PDF_DPI)
             default_lang = self._info_handler.get(INFO_OCR_DEF_LANG)
+            tessdata_path = self._info_handler.get(INFO_OCR_TESSDATA_PATH)
             preprocess.process(
                 path_to_index=path_to_index,
                 path_to_additional_parm=path_to_additional_parm,
@@ -1224,6 +1430,7 @@ class PreprocessThread(threading.Thread):
                 cov_format=cov_format,
                 engine=engine,
                 default_lang=default_lang,
+                tessdata_path=tessdata_path,
                 tracker=self._tracker,
             )
         except ValueError as v:
@@ -1243,7 +1450,6 @@ class PreprocessThread(threading.Thread):
                 self._tracker.log("处理完成！ 用时 : {}".format(total_time),
                                   prt=True)
             self._tracker.reset_ticker()
-            self._tracker.reset_parent()
             self._tracker.log("结束预处理线程!")
             self._info_handler.unfreeeze(vars_)
             self._finished = True
@@ -1270,13 +1476,16 @@ class LoadDataThread(threading.Thread):
     def run(self):
         self._tracker.log("启动装载数据线程!")
         vars_ = [
-            INFO_PATH_ROOT
+            INFO_PATH_ROOT,
+            INFO_PATH_INDEX,
         ]
         try:
             self._info_handler.freeeze(vars_)
             root_path = self._info_handler.get(INFO_PATH_ROOT)
-            self._return_value = prepare_data.prepare_data(
+            index_path = self._info_handler.get(INFO_PATH_INDEX)
+            self._return_value = load_data.prepare_data(
                 root_path=root_path,
+                index_path=index_path,
                 tracker=self._tracker
             )
         except ValueError as v:
@@ -1296,7 +1505,6 @@ class LoadDataThread(threading.Thread):
                 self._tracker.log("处理完成！ 用时 : {}".format(total_time),
                                   prt=True)
             self._tracker.reset_ticker()
-            self._tracker.reset_parent()
             self._tracker.log("结束装载数据线程!")
             self._info_handler.unfreeeze(vars_)
             self._finished = True
@@ -1326,30 +1534,33 @@ class ExtractionThread(threading.Thread):
     def run(self):
         self._tracker.log("启动抽取词汇线程!")
         vars_ = [
-            INFO_LOADER_RAW_DATA,
+            INFO_ARTICLES,
             INFO_ANALYZE_NUM_WANTED,
             INFO_ANALYZE_EXTRACTOR,
+            INFO_ANALYZE_ALLOW_POS,
             INFO_ANALYZE_SUGGESTION_WORD,
             INFO_ANALYZE_WHITELIST_WORD,
             INFO_ANALYZE_BLACKLIST_WORD,
         ]
         try:
             self._info_handler.freeeze(vars_)
-            data = self._info_handler.get(INFO_LOADER_RAW_DATA)
+            articles = self._info_handler.get(INFO_ARTICLES)
             num_wanted = self._info_handler.get(INFO_ANALYZE_NUM_WANTED)
             extractor = self._info_handler.get(INFO_ANALYZE_EXTRACTOR)
+            allowPOS = self._info_handler.get(INFO_ANALYZE_ALLOW_POS)
             suggestion_word = self._info_handler.get(
                 INFO_ANALYZE_SUGGESTION_WORD)
             whitelist_word = self._info_handler.get(INFO_ANALYZE_WHITELIST_WORD)
             blacklist_word = self._info_handler.get(INFO_ANALYZE_BLACKLIST_WORD)
-            self._return_value = word_analysis.summarise(
-                data=data,
+            self._return_value = word_extraction.summarise(
+                data=articles,
                 suggestion_word=suggestion_word,
                 whitelist_word=whitelist_word,
                 blacklist_word=blacklist_word,
                 num_wanted=num_wanted,
                 extractor=extractor,
                 tracker=self._tracker,
+                allowPOS=allowPOS
             )
         except ValueError as v:
             message = str(v)
@@ -1368,7 +1579,6 @@ class ExtractionThread(threading.Thread):
                 self._tracker.log("处理完成！ 用时 : {}".format(total_time),
                                   prt=True)
             self._tracker.reset_ticker()
-            self._tracker.reset_parent()
             self._tracker.log("结束抽取词汇线程!")
             self._info_handler.unfreeeze(vars_)
             self._finished = True
@@ -1398,16 +1608,20 @@ class AnalyzeThread(threading.Thread):
     def run(self):
         self._tracker.log("启动统计分析线程!")
         vars_ = [
-            INFO_EXTRACTOR_SEGMENTS,
+            INFO_TAGS, INFO_ARTICLES, INFO_SORTING,
             INFO_ANALYZE_STAT_ANALYZER
         ]
         try:
             self._info_handler.freeeze(vars_)
-            segment = self._info_handler.get(INFO_EXTRACTOR_SEGMENTS)
+            segment = self._info_handler.get(INFO_TAGS)
+            articles = self._info_handler.get(INFO_ARTICLES)
+            sorting = self._info_handler.get(INFO_SORTING)
             statistics_analyzer = self._info_handler.get(
                 INFO_ANALYZE_STAT_ANALYZER)
             self._return_value = word_statistics.analyze(
                 segment=segment,
+                articles=articles,
+                sorting=sorting,
                 tracker=self._tracker,
                 statistics_analyzer=statistics_analyzer
             )
@@ -1426,8 +1640,67 @@ class AnalyzeThread(threading.Thread):
             self._tracker.clear_time_accum()
             self._tracker.log("处理完成！ 用时 : {}".format(total_time), prt=True)
             self._tracker.reset_ticker()
-            self._tracker.reset_parent()
             self._tracker.log("结束统计分析线程!")
+            self._info_handler.unfreeeze(vars_)
+            self._finished = True
+
+    def is_finished(self):
+        return self._finished
+
+    def get_error(self):
+        return self._error
+
+    def get_return_value(self):
+        return self._return_value
+
+    def is_successful(self):
+        return self._error is None
+
+
+class ExportThread(threading.Thread):
+    def __init__(self, tracker, info_handler):
+        super().__init__(name="Export Thread", daemon=True)
+        self._info_handler = info_handler
+        self._tracker = tracker
+        self._finished = False
+        self._return_value = None
+        self._error = None
+
+    def run(self):
+        self._tracker.log("启动输出线程!")
+        vars_ = [
+            INFO_SORTING, INFO_ANALYZED_SUMMARY, INFO_ANALYZED_DETAIL
+        ]
+        try:
+            self._info_handler.freeeze(vars_)
+            path = self._info_handler.get(INFO_OUTPUT_PATH)
+            sorting = self._info_handler.get(INFO_SORTING)
+            summary = self._info_handler.get(INFO_ANALYZED_SUMMARY)
+            detail = self._info_handler.get(INFO_ANALYZED_DETAIL)
+            show_detail = self._info_handler.get(INFO_ACTION_SHOW_STAT_DETAIL)
+            output.write_excel(
+                path=path,
+                total_summary=summary,
+                detail_summary=detail,
+                sorting=sorting,
+                show_detail=show_detail,
+            )
+        except ValueError as v:
+            message = str(v)
+            self._error = (message, THREAD_VALUE_ERROR)
+            self._tracker.log("输出线程由于 参数错误 终止！ [error='{}']".format(message),
+                              tp=TRACKER_LOG_ERROR, prt=True, exc_info=v)
+        except Exception as e:
+            message = str(e)
+            self._error = (message, THREAD_OTHER_ERROR)
+            self._tracker.log("输出线程意外终止！ [error='{}']".format(str(e)),
+                              tp=TRACKER_LOG_ERROR, prt=True, exc_info=e)
+        finally:
+            total_time = self._tracker.time_elapsed(use_time_accum=True)
+            self._tracker.clear_time_accum()
+            self._tracker.log("处理完成！ 用时 : {}".format(total_time), prt=True)
+            self._tracker.reset_ticker()
+            self._tracker.log("结束输出线程!")
             self._info_handler.unfreeeze(vars_)
             self._finished = True
 
