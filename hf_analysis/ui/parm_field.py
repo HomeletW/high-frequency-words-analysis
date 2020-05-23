@@ -4,7 +4,7 @@ from tkinter.ttk import Progressbar
 
 from pinyin import pinyin
 
-from hf_analysis.ui.tk_object import *
+from ui.tk_object import *
 
 
 class BaseFrame(tk.Frame, Sizeable):

@@ -3,7 +3,7 @@ from typing import Any, Dict
 import xlsxwriter
 from pinyin import pinyin
 
-from hf_analysis.parameter import *
+from parameter import *
 
 WIDTH_RATIO = 2.1
 

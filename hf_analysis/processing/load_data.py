@@ -6,7 +6,7 @@ from typing import Dict, List, Tuple
 import pandas as pd
 from docx2txt import process
 
-from hf_analysis.parameter import *
+from parameter import *
 
 
 def extract_content(path: str) -> str:

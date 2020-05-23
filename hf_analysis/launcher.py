@@ -2,9 +2,9 @@ import sys
 import tkinter
 import tkinter.messagebox as messagebox
 
-from hf_analysis.parameter import INFO_PATCH
-from hf_analysis.ui.UI import MainApplication
-from hf_analysis.ui.tk_object import InfoHandler, TRACKER_LOG_ERROR
+from parameter import INFO_PATCH
+from ui.UI import MainApplication
+from ui.tk_object import InfoHandler, TRACKER_LOG_ERROR
 
 sys.path.append("../")
 

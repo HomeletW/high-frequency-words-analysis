@@ -6,7 +6,7 @@ from typing import Dict, List
 import jieba.analyse
 import jieba.posseg
 
-from hf_analysis.parameter import EXTRACTOR, TEXT_RANK
+from parameter import EXTRACTOR, TEXT_RANK
 
 
 def extract(article_name: str,

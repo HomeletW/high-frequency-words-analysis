@@ -13,11 +13,11 @@ from os import environ, makedirs
 from os.path import abspath, basename, exists, expanduser, isdir, join, split
 from typing import List, Tuple
 
-from hf_analysis.parameter import *
-from hf_analysis.processing import load_data, output
-from hf_analysis.processing import preprocess
-from hf_analysis.processing import word_extraction, word_statistics
-from hf_analysis.processing.load_data import load_words
+from parameter import *
+from processing import load_data, output
+from processing import preprocess
+from processing import word_extraction, word_statistics
+from processing.load_data import load_words
 
 
 def get_home_directory():

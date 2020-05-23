@@ -178,7 +178,7 @@ def analyze(segment,
             sorting,
             tracker,
             statistics_analyzer=TrendAnalyzer, **kwargs):
-    from hf_analysis.parameter import ANALYZER
+    from parameter import ANALYZER
     tracker.log("正在分析数据统计", prt=True)
     # create the statistical analyzer
     analyzer = ANALYZER[statistics_analyzer].const(

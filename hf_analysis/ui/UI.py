@@ -1,4 +1,4 @@
-from hf_analysis.ui.parm_field import *
+from ui.parm_field import *
 
 
 class MainApplication:

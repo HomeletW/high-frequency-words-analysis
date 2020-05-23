@@ -7,7 +7,7 @@ from PIL import Image
 from pdf2image import convert_from_path
 from tesserocr import PyTessBaseAPI, RIL, iterate_level
 
-from hf_analysis.processing.load_data import *
+from processing.load_data import *
 
 
 # AVAILABLE_LANG = list(tesserocr.get_languages(best)[1])

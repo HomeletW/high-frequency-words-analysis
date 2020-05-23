@@ -3,7 +3,7 @@ from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
 
 import jieba.analyse
 
-from hf_analysis.processing.word_statistics import TREND_FLAG_DECLINE, \
+from processing.word_statistics import TREND_FLAG_DECLINE, \
     TREND_FLAG_INCREASE, TREND_FLAG_STABLE, TrendAnalyzer
 
 DEVICE_OS = platform.system()
