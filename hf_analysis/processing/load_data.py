@@ -63,10 +63,10 @@ def prepare_data(root_path: str, index_path: str, tracker) -> \
     for file_name in dirs:
         # get the abs path
         abs_path = join(data_path, file_name)
-        # basename
-        base_name = basename(file_name)
+        # file pre
+        file_pre, _ = splitext(file_name)
         # get the args
-        file_args = splitext(file_name)[0].split("_")
+        file_args = file_pre.split("_")
         # the first args must be DATA_PREFIX and must have two arg
         if len(file_args) < 4 or file_args[0] != DATA_PREFIX:
             tracker.log("跳过 {} 因为文件名不符合规范".format(file_name), prt=True)
@@ -74,11 +74,11 @@ def prepare_data(root_path: str, index_path: str, tracker) -> \
         elif not isfile(abs_path):
             tracker.log("跳过 {} 因为无此文件".format(file_name), prt=True)
             continue
-        elif base_name not in index_file_name:
+        elif file_pre not in index_file_name:
             tracker.log("跳过 {} 因为文件不在 index 里".format(file_name), prt=True)
             continue
         else:
-            index_file_name.remove(base_name)
+            index_file_name.remove(file_pre)
             tracker.update_disc_fill("处理 {}".format(file_name))
             content = get_text(abs_path)
             category = file_args[2]

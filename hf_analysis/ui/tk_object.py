@@ -685,7 +685,7 @@ class ButtonLabelPair(InfoPair):
                               anchor=tk.W)
         self.del_button = tk.Button(master=self, text="X",
                                     command=self.label_del_info, fg="red")
-        self.label.bind("<<Double-Button-1>>", self.label_show_info)
+        self.label.bind("<Double-Button-1>", self.label_show_info)
 
     def place_items(self):
         self.size_conf.place([

@@ -108,7 +108,7 @@ class LeftFileSelectFrame(LabeledBaseFrame):
         self.butt_index_file = ButtonLabelPair(
             master=self, button_text="选择 索引文件",
             button_func=self.open_index_file, size_conf=divided[1][0],
-            mandatory_field=False
+            mandatory_field=True
         )
         self.butt_add_pram_file = ButtonLabelPair(
             master=self, button_text="选择 附加参数文件",
@@ -546,35 +546,30 @@ class CentralActionFrame(BaseFrame):
             source=None,
             default=None,
             not_none=True,
-            not_empty=True,
             key=INFO_ARTICLES,
         )
         self._info_handler.register_field(
             source=None,
             default=None,
             not_none=True,
-            not_empty=True,
             key=INFO_SORTING,
         )
         self._info_handler.register_field(
             source=None,
             default=None,
             not_none=True,
-            not_empty=True,
             key=INFO_TAGS,
         )
         self._info_handler.register_field(
             source=None,
             default=None,
             not_none=True,
-            not_empty=True,
             key=INFO_ANALYZED_SUMMARY,
         )
         self._info_handler.register_field(
             source=None,
             default=None,
             not_none=True,
-            not_empty=True,
             key=INFO_ANALYZED_DETAIL,
         )
         self._info_handler.register_field(
