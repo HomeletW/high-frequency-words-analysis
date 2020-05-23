@@ -42,8 +42,8 @@ def write_excel(path,
         max_width.append(4 * WIDTH_RATIO)
         col += 1
     # write header
-    header = sorted(sorting.items(), key=lambda i: i[1])
-    for category, _ in header:
+    cat_header = sorted(sorting.items(), key=lambda i: i[1])
+    for category, _ in cat_header:
         summary.write_string(row, col, category, cell_format=title_format)
         max_width.append(len(category) * WIDTH_RATIO)
         col += 1
@@ -95,7 +95,8 @@ def write_excel(path,
         summary.set_column(index, index, width=width)
     # write detail
     # { category: { tag: { article: int } }
-    for category, tag_details in detail_summary.items():
+    for category, _ in cat_header:
+        tag_details = detail_summary[category]
         work_sheet = workbook.add_worksheet(category)
         row, col = 0, 0
         max_width = []

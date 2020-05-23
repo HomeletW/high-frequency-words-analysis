@@ -1,0 +1,5 @@
+recursive-include tessdata
+
+include README.md
+
+include default.json

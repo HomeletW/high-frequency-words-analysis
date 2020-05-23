@@ -100,6 +100,10 @@ def prepare_data(root_path: str, index_path: str, tracker) -> \
                     tp=TRACKER_LOG_WARNING, prt=True)
             c_dict[name] = content
             tracker.tick()
+    if len(index_file_name) != 0:
+        # there are something missing
+        raise Exception("缺少文件! 请再次运行 预处理 或检查索引文件! <{}>".format(
+            "".join(name for name in index_file_name)))
     return data, ordering
 
 

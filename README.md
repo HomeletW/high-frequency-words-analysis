@@ -1,4 +1,4 @@
-# 高频词汇分析 （HF_WordAnalysis)
+# 高频词汇分析 （hf_word_analysis)
 
 ## 项目概述
 
@@ -32,4 +32,5 @@
 
 ### Windows
 
+## 常见问题
 

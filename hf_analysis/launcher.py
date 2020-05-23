@@ -8,7 +8,7 @@ from ui.tk_object import InfoHandler, TRACKER_LOG_ERROR
 
 sys.path.append("../")
 
-PATCH = "V 1.0"
+PATCH = "V 0.1"
 
 
 def main():
