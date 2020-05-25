@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import json
@@ -13,11 +14,11 @@ from os import environ, makedirs
 from os.path import abspath, basename, exists, expanduser, isdir, join, split
 from typing import List, Tuple
 
-from parameter import *
-from processing import load_data, output
-from processing import preprocess
-from processing import word_extraction, word_statistics
-from processing.load_data import load_words
+from hf_analysis.parameter import *
+from hf_analysis.processing import load_data, output
+from hf_analysis.processing import preprocess
+from hf_analysis.processing import word_extraction, word_statistics
+from hf_analysis.processing.load_data import load_words
 
 
 def get_home_directory():
@@ -54,9 +55,6 @@ class InfoPair(tk.Frame, Sizeable):
         raise NotImplementedError
 
     def get(self, *args, **kwargs):
-        raise NotImplementedError
-
-    def config(self, *args, **kwargs):
         raise NotImplementedError
 
     def get_size(self):
@@ -442,7 +440,9 @@ class EditFieldPair(InfoPair):
         ])
 
     def config(self, *args, **kwargs):
+        super().config(*args, **kwargs)
         self.button.config(*args, **kwargs)
+        self.button.update()
         state = kwargs["state"]
         if state == tk.DISABLED:
             # we need to close the window if exist
@@ -494,7 +494,9 @@ class CheckButtonPair(InfoPair):
         ])
 
     def config(self, *args, **kwargs):
+        # super().config(*args, **kwargs)
         self.checkbutton.config(*args, **kwargs)
+        self.checkbutton.update()
 
     def set(self, value):
         self.var.set(value)
@@ -533,9 +535,13 @@ class LabelScalePair(InfoPair):
         ])
 
     def config(self, *args, **kwargs):
+        super().config(*args, **kwargs)
         self.label.config(*args, **kwargs)
         self.scale_indicator.config(*args, **kwargs)
         self.scale.config(*args, **kwargs)
+        self.label.update()
+        self.scale_indicator.update()
+        self.scale.update()
 
     def _update_text(self, _):
         val = self.get()
@@ -590,9 +596,12 @@ class CheckButtonsPair(InfoPair):
         ])
 
     def config(self, *args, **kwargs):
+        super().config(*args, **kwargs)
         self.label.config(*args, **kwargs)
+        self.label.update()
         for b in self.buttons:
             b.config(*args, **kwargs)
+            b.update()
 
     def set(self, values):
         values = values.split("+")
@@ -648,9 +657,12 @@ class RadioButtonsPair(InfoPair):
         ])
 
     def config(self, *args, **kwargs):
+        super().config(*args, **kwargs)
         self.label.config(*args, **kwargs)
+        self.label.update()
         for b in self.buttons:
             b.config(*args, **kwargs)
+            b.update()
 
     def set(self, value):
         self.var.set(value)
@@ -693,9 +705,13 @@ class ButtonLabelPair(InfoPair):
         ])
 
     def config(self, *args, **kwargs):
+        super().config(*args, **kwargs)
         self.button.config(*args, **kwargs)
         self.label.config(*args, **kwargs)
         self.del_button.config(*args, **kwargs)
+        self.button.update()
+        self.label.update()
+        self.del_button.update()
 
     def set(self, value):
         path_name, file_name = split(value)
@@ -778,10 +794,14 @@ class LabelEntryPair(InfoPair):
             self.size_conf.place([[self.label, self.entry]])
 
     def config(self, *args, **kwargs):
+        super().config(*args, **kwargs)
         self.label.config(*args, **kwargs)
         self.entry.config(*args, **kwargs)
+        self.label.update()
+        self.entry.update()
         if self.button is not None:
             self.button.config(*args, **kwargs)
+            self.button.update()
 
     def set(self, value):
         set_entry_value(self.entry, value)

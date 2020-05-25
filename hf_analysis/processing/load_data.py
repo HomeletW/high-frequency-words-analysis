@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from os import listdir
 from os.path import exists, isfile, join, splitext
 from re import findall
@@ -6,7 +8,7 @@ from typing import Dict, List, Tuple
 import pandas as pd
 from docx2txt import process
 
-from parameter import *
+from hf_analysis.parameter import *
 
 
 def extract_content(path: str) -> str:

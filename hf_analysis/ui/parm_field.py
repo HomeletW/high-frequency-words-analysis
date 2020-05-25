@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
+
 import subprocess
 import tkinter.messagebox as messagebox
 from tkinter.ttk import Progressbar
 
 from pinyin import pinyin
 
-from ui.tk_object import *
+from hf_analysis.ui.tk_object import *
 
 
 class BaseFrame(tk.Frame, Sizeable):

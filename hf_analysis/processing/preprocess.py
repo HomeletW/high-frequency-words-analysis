@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
+
+
 from os import makedirs
-from os.path import abspath
+from os.path import abspath, basename
 from textwrap import wrap
 from typing import Optional
 
@@ -7,7 +10,7 @@ from PIL import Image
 from pdf2image import convert_from_path
 from tesserocr import PyTessBaseAPI, RIL, iterate_level
 
-from processing.load_data import *
+from hf_analysis.processing.load_data import *
 
 
 def process(path_to_index: str,
@@ -232,7 +235,7 @@ def get_content(api, img_path: str,
     img = img.convert("L").point(lambda x: 0 if x < 180 else 255, "1")
     if image_crop_pram is not None:
         img = img.crop(image_crop_pram)
-    # use Tesseract to recognize the texts
+    # use tesseract to recognize the texts
     api.SetImage(img)
     api.Recognize()
     # build the data
@@ -253,7 +256,7 @@ def get_content(api, img_path: str,
 
 
 def extract_page_number(path: str) -> int:
-    name = basename(path).rsplit(".", maxsplit=1)[0]
+    name = str(basename(path).rsplit(".", maxsplit=1)[0])
     return int(name.split("-")[2])
 
 

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 统计模块，用于总结重要高频词汇
 """
@@ -178,7 +180,7 @@ def analyze(segment,
             sorting,
             tracker,
             statistics_analyzer=TrendAnalyzer, **kwargs):
-    from parameter import ANALYZER
+    from hf_analysis.parameter import ANALYZER
     tracker.log("正在分析数据统计", prt=True)
     # create the statistical analyzer
     analyzer = ANALYZER[statistics_analyzer].const(

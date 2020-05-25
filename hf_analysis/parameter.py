@@ -1,10 +1,15 @@
+# -*- coding: utf-8 -*-
+
 import platform
 from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
 
 import jieba.analyse
 
-from processing.word_statistics import TREND_FLAG_DECLINE, \
+from hf_analysis.processing.word_statistics import TREND_FLAG_DECLINE, \
     TREND_FLAG_INCREASE, TREND_FLAG_STABLE, TrendAnalyzer
+
+ICON_PNG_PATH = ".././resource/icon_16x16@2x.png"
+ICON_ICN_PATH = ".././resource/icon.icns"
 
 DEVICE_OS = platform.system()
 
@@ -36,7 +41,7 @@ RESOURCE_PATH = "resource"
 LOG_PATH = ".././log/"
 
 # json path
-JSON_PATH = "./.././default.json"
+JSON_PATH = ".././default.json"
 
 # available extractor
 TF_IDF = "tf-idf"

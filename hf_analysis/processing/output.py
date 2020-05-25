@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+
 from typing import Any, Dict
 
 import xlsxwriter
 from pinyin import pinyin
 
-from parameter import *
+from hf_analysis.parameter import *
 
 WIDTH_RATIO = 2.1
 

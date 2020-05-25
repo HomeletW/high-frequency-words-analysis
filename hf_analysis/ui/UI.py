@@ -1,10 +1,13 @@
-from ui.parm_field import *
+# -*- coding: utf-8 -*-
+
+from hf_analysis.ui.parm_field import *
 
 
 class MainApplication:
     def __init__(self, tk_instance, info_handler,
                  title="高频词汇分析", width=780, height=750):
         self.root = tk_instance
+        self.icon_image = tk.PhotoImage(file=ICON_PNG_PATH)
         self.root.minsize(width, height)
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
@@ -14,6 +17,7 @@ class MainApplication:
         self.root.title(title)
         self.root.resizable(0, 0)
         self.root.protocol("WM_DELETE_WINDOW", self.on_exit)
+        self.root.iconbitmap(ICON_ICN_PATH)
         # size_config
         self.size_config = TopDownSizeConfig(width, height)
         divided = self.size_config.divide(((1, 1),), 0, False)
@@ -27,6 +31,7 @@ class MainApplication:
         self.root.destroy()
 
     def run(self):
+        self.root.after(50, self.root.iconphoto, True, self.icon_image)
         self.root.mainloop()
 
     def get_tracker(self):
@@ -61,20 +66,20 @@ class InfoFrame(tk.Frame):
             (6, 1),  # the action center
             (1, 1)  # the status bar
         ), spacing=5, internal=False)
-        self.left_pram_frame = LeftPramFrame(
-            master=self, size_conf=divided[0][0],
+        self.status_bar_frame = StatusBarFrame(
+            master=self, size_config=divided[2][0],
             info_handler=self._info_handler
         )
         self.central_frame = CentralFrame(
             master=self, size_config=divided[1][0], tracker=self.tracker,
             info_handler=self._info_handler
         )
-        self.right_pram_frame = RightPramFrame(
-            master=self, size_config=divided[0][1],
+        self.left_pram_frame = LeftPramFrame(
+            master=self, size_conf=divided[0][0],
             info_handler=self._info_handler
         )
-        self.status_bar_frame = StatusBarFrame(
-            master=self, size_config=divided[2][0],
+        self.right_pram_frame = RightPramFrame(
+            master=self, size_config=divided[0][1],
             info_handler=self._info_handler
         )
 
@@ -181,7 +186,7 @@ class CentralFrame(BaseFrame):
 
     def __init__(self, master, size_config, tracker, info_handler):
         super().__init__(master, size_config, info_handler)
-        self.instruction_field = None
+        # self.instruction_field = None
         self.progress_field = None
         self.action_field = None
         self.tracker = tracker

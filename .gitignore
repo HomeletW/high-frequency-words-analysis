@@ -8,7 +8,7 @@ __pycache__
 data
 
 # log
-log
+log/.
 
 # egg
 .eggs

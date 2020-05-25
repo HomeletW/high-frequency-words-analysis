@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 
 # 引用必要库
 from typing import Dict, List
@@ -6,7 +6,7 @@ from typing import Dict, List
 import jieba.analyse
 import jieba.posseg
 
-from parameter import EXTRACTOR, TEXT_RANK
+from hf_analysis.parameter import EXTRACTOR, TEXT_RANK
 
 
 def extract(article_name: str,
