@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import platform
-from logging import CRITICAL, DEBUG, ERROR, INFO, WARNING
+from logging import CRITICAL, DEBUG, ERROR, INFO, NOTSET, WARNING
 
 import jieba.analyse
 
 from hf_analysis.processing.word_statistics import TREND_FLAG_DECLINE, \
     TREND_FLAG_INCREASE, TREND_FLAG_STABLE, TrendAnalyzer
 
-ICON_PNG_PATH = ".././resource/icon_16x16@2x.png"
-ICON_ICN_PATH = ".././resource/icon.icns"
+ICON_PNG_PATH = "./resource/icon_16x16@2x.png"
+ICON_ICN_PATH = "./resource/icon.icns"
 
 DEVICE_OS = platform.system()
 
@@ -25,9 +25,9 @@ TREND_NAME = {
 }
 
 # tesseract arguments
-TESSDATA_DEFAULT_PATH = ".././tessdata/default/."
-TESSDATA_BEST_PATH = ".././tessdata/best/."
-TESSDATA_FAST_PATH = ".././tessdata/fast/."
+TESSDATA_DEFAULT_PATH = "./tessdata/default/."
+TESSDATA_BEST_PATH = "./tessdata/best/."
+TESSDATA_FAST_PATH = "./tessdata/fast/."
 FORMAT_LENGTH = 50
 
 DEFAULT_SPACING = 5
@@ -37,11 +37,8 @@ TEMP_PATH = "temp"
 DATA_PATH = "data"
 RESOURCE_PATH = "resource"
 
-# log path
-LOG_PATH = ".././log/"
-
 # json path
-JSON_PATH = ".././default.json"
+JSON_PATH = "./default.json"
 
 # available extractor
 TF_IDF = "tf-idf"
@@ -67,6 +64,7 @@ TRACKER_TICK_DESC_UPDATE = "tracker_tick_description_update"
 TRACKER_TICK_INIT = "tracker_tick_init"
 TRACKER_SET_INDETERMINATE = "tracker_indeterminate"
 
+TRACKER_LOG_NOTSET = NOTSET
 TRACKER_LOG_DEBUG = DEBUG
 TRACKER_LOG_INFO = INFO
 TRACKER_LOG_WARNING = WARNING

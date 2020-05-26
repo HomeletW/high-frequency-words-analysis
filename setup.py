@@ -13,7 +13,6 @@ APP = ['./launcher.py']
 DATA_FILES = [
     './tessdata',
     './default.json',
-    './log',
     './resource'
 ]
 OPTIONS = {

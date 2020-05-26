@@ -25,12 +25,15 @@ class MainApplication:
             master=self.root, size_conf=divided[0][0], info_handler=info_handler
         )
         self.infoFrame.pack(side=tk.TOP)
+        self.root.grab_set()
 
     def on_exit(self):
         self.infoFrame.on_exit()
         self.root.destroy()
 
     def run(self):
+        self.root.update()
+        self.root.deiconify()
         self.root.after(50, self.root.iconphoto, True, self.icon_image)
         self.root.mainloop()
 

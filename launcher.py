@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 import tkinter
 import tkinter.messagebox as messagebox
 

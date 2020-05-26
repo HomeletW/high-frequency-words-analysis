@@ -440,7 +440,7 @@ class EditFieldPair(InfoPair):
         ])
 
     def config(self, *args, **kwargs):
-        super().config(*args, **kwargs)
+        # super().config(*args, **kwargs)
         self.button.config(*args, **kwargs)
         self.button.update()
         state = kwargs["state"]
@@ -535,7 +535,7 @@ class LabelScalePair(InfoPair):
         ])
 
     def config(self, *args, **kwargs):
-        super().config(*args, **kwargs)
+        # super().config(*args, **kwargs)
         self.label.config(*args, **kwargs)
         self.scale_indicator.config(*args, **kwargs)
         self.scale.config(*args, **kwargs)
@@ -596,7 +596,7 @@ class CheckButtonsPair(InfoPair):
         ])
 
     def config(self, *args, **kwargs):
-        super().config(*args, **kwargs)
+        # super().config(*args, **kwargs)
         self.label.config(*args, **kwargs)
         self.label.update()
         for b in self.buttons:
@@ -657,7 +657,7 @@ class RadioButtonsPair(InfoPair):
         ])
 
     def config(self, *args, **kwargs):
-        super().config(*args, **kwargs)
+        # super().config(*args, **kwargs)
         self.label.config(*args, **kwargs)
         self.label.update()
         for b in self.buttons:
@@ -705,7 +705,7 @@ class ButtonLabelPair(InfoPair):
         ])
 
     def config(self, *args, **kwargs):
-        super().config(*args, **kwargs)
+        # super().config(*args, **kwargs)
         self.button.config(*args, **kwargs)
         self.label.config(*args, **kwargs)
         self.del_button.config(*args, **kwargs)
@@ -794,7 +794,7 @@ class LabelEntryPair(InfoPair):
             self.size_conf.place([[self.label, self.entry]])
 
     def config(self, *args, **kwargs):
-        super().config(*args, **kwargs)
+        # super().config(*args, **kwargs)
         self.label.config(*args, **kwargs)
         self.entry.config(*args, **kwargs)
         self.label.update()
@@ -856,17 +856,18 @@ class ProgressTracker:
         self._enable_print_out = enable_print_out
         self._update_func = update_func
         # message
-        if not exists(LOG_PATH):
-            makedirs(LOG_PATH)
-        time_stamp = self._time_stamp()
-        name = "{}_{}.log".format(time_stamp.date(), time_stamp.time())
-        logging.basicConfig(
-            filename=join(LOG_PATH, name),
-            filemode="w+",
-            style="{",
-            format="{threadName:<20s} <{levelname:<7s}> "
-                   "[{asctime:<15s}] {message}"
-        )
+        # if not exists(LOG_PATH):
+        #     makedirs(LOG_PATH)
+        # time_stamp = self._time_stamp()
+        # name = "{}_{}.log".format(time_stamp.date(), time_stamp.time())
+        # logging.basicConfig(
+        #     filename=join(LOG_PATH, name),
+        #     filemode="w+",
+        #     style="{",
+        #     format="{threadName:<20s} <{levelname:<7s}> "
+        #            "[{asctime:<15s}] {message}",
+        #     level=logging.DEBUG
+        # )
         self._logger = logging.getLogger("Main Logger")
         self._logger.setLevel(logging.DEBUG)
         # tick
@@ -973,14 +974,14 @@ class ProgressTracker:
         message = message.strip()
         self._logger.log(
             level=tp,
-            msg=message, exc_info=exc_info, stack_info=stack_info,
-            stacklevel=stacklevel, extra=extra
+            msg=message,
+            exc_info=exc_info,
+            stack_info=stack_info,
+            stacklevel=stacklevel,
+            extra=extra
         )
         # self._message.append((self._time_stamp(), tp, message))
         self._update(mode=TRACKER_LOG, tp=tp, prt=prt, message=message)
-
-    def get_logger(self):
-        return self._logger
 
     def time_elapsed(self, use_time_accum=False) -> str:
         if not use_time_accum:
