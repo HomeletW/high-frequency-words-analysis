@@ -107,16 +107,18 @@
 - 文件地址：文件的名字，这一项与索引文件里文件地址规则相同。
 - 裁剪参数：这一参数的作用是通过裁剪扫描图片的方式，帮助程序过滤掉一些无用的信息。
     - 格式为：`CROP=x/y//height`
-    - <img src="resource/crop_parm_demo.png" alt="crop parm demo">     
+
+<img src="resource/crop_parm_demo.png" alt="crop parm demo" height="150px">     
 
 比如说在某些 PDF 文件里每一页会出现的页眉，页脚，页码，假如这些是一些我们不想要的干扰数据，
 
-<img src="resource/data-300-0149.jpg" alt="crop example" height="350px">
+<img src="resource/data-300-0149.jpg" alt="crop example" height="700px">
 
 我们可以通过设定一个裁剪参数使这些干扰数据不被识别。
 - 识别语言：这一参数的作用是设定一个识别语言，来更好的识别数据。
     - 格式为：`LANG=语言1+语言2`
-    - <img src="resource/lang_parm_demo.png" alt="lang parm demo">
+
+<img src="resource/lang_parm_demo.png" alt="lang parm demo" height="150px">
 
 目前支持的语言有
 - 简体中文：chi_sim
@@ -261,8 +263,7 @@ If you need any other supported languages, run `brew install tesseract-lang`.
 
 <h4 id="poppler_install"> 主体程序安装 </h4>
 
-接下来我们将安装主体程序，前往<a href="">发布版本</a>
-来选择安装版本，或者直接下载<a href="">推荐版本</a>。
+接下来我们将安装主体程序，前往<a href="https://github.com/HomeletW/high-frequency-words-analysis/tree/master/release">发布版本</a>来选择安装版本，或者直接下载<a href="https://github.com/HomeletW/high-frequency-words-analysis/blob/master/release/%E9%AB%98%E9%A2%91%E8%AF%8D%E6%B1%87%E5%88%86%E6%9E%90_release_0.1.zip?raw=true">推荐版本</a>。
 
 接下来将下载好的 zip 文件移动到您喜欢的位置（例如，桌面）然后双击解压，并且将解压好的文件夹改成喜欢的名字。
 
