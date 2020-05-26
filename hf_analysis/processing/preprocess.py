@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-
-
+import pathlib
 from os import makedirs
 from os.path import abspath, basename
 from textwrap import wrap
@@ -117,7 +116,7 @@ def scan_pdf(path_to_pdf: str,
         prefix, f_dpi, page_number, format_ = info
         if prefix == name and f_dpi == dpi and format_.endswith(cov_format):
             # we got this file already
-            processed[page_number] = p
+            processed[page_number] = p.encode("utf8")
     subsets, relev = get_relevant_subset(processed, first_page, last_page)
     total_page = sum(e - s + 1 for s, e in subsets)
     name_generator = ("{}-{}".format(name, dpi) for _ in range(total_page))
@@ -125,13 +124,19 @@ def scan_pdf(path_to_pdf: str,
     tracker.set_indeterminate(True)
     # iterate through the subset
     paths = {index: processed[index] for index in relev}
+    # import tkinter.messagebox
+    # tkinter.messagebox.showinfo("Test {}".format(paths),
+    #                             f":???")
     for start, end in subsets:
+        # tkinter.messagebox.showinfo("Test {}".format(paths),
+        #                             f"start: {start}, end: {end}")
         temp_images_path = convert_from_path(
             pdf_path=path_to_pdf,
             dpi=dpi, output_folder=temp_folder,
             first_page=start, last_page=end,
             fmt=cov_format, paths_only=True, output_file=name_generator,
-            use_pdftocairo=engine
+            use_pdftocairo=engine,
+            poppler_path=pathlib.PurePath(POPPLER_PATH)
         )
         paths.update({extract_page_number(p): p for p in temp_images_path})
     tracker.set_indeterminate(False)
@@ -266,4 +271,5 @@ def extract_info(path: str) -> Optional[Tuple[str, int, int, str]]:
     if len(seg) != 3:
         return None
     prefix, dpi, page_number = seg
-    return prefix, int(dpi), int(page_number), format_
+    return prefix.encode("utf8"), int(dpi), int(page_number), format_.encode(
+        "utf8")

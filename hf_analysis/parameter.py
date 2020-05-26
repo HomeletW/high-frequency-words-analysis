@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import platform
 from logging import CRITICAL, DEBUG, ERROR, INFO, NOTSET, WARNING
 
@@ -7,6 +8,9 @@ import jieba.analyse
 
 from hf_analysis.processing.word_statistics import TREND_FLAG_DECLINE, \
     TREND_FLAG_INCREASE, TREND_FLAG_STABLE, TrendAnalyzer
+
+# get poppler path
+POPPLER_PATH = '/usr/local/bin/'
 
 ICON_PNG_PATH = "./resource/icon_16x16@2x.png"
 ICON_ICN_PATH = "./resource/icon.icns"
