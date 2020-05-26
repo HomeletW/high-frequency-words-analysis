@@ -15,3 +15,7 @@ log/.
 
 # default.json
 default.json
+
+build
+
+dist

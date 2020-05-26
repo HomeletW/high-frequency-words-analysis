@@ -10,7 +10,9 @@ cd "$SCRIPT_DIR" || {
 echo "Working in $(pwd)"
 
 echo "Installing Virtuelenv..."
+
 # first install virtualenv
+
 python3 -m pip install virtualenv
 
 echo "Creating Virtuelenv enviroment..."
@@ -20,6 +22,7 @@ virtualenv hfwa_env
 source hfwa_env/bin/activate
 
 echo "Installing Dependencies..."
+
 # now install all required pacakges in requirements.txt
 
 hfwa_env/bin/python -m pip install -r requirements.txt
@@ -27,6 +30,7 @@ hfwa_env/bin/python -m pip install -r requirements.txt
 echo "Prepare to build App..."
 
 # after install complete we build the app
+
 rm -rf build dist
 
 hfwa_env/bin/python setup.py py2app -A

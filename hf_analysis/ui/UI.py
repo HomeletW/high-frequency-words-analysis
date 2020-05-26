@@ -299,7 +299,7 @@ class StatusBarFrame(BaseFrame):
         )
         self.patch_label = tk.Label(
             self, anchor=tk.E,
-            text=self._info_handler.get(INFO_PATCH)
+            text="V" + self._info_handler.get(INFO_PATCH)
         )
 
     def place_items(self):

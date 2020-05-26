@@ -9,6 +9,8 @@ Usage:
 
 from setuptools import setup
 
+from launcher import PATCH
+
 APP = ['./launcher.py']
 DATA_FILES = [
     './tessdata',
@@ -34,8 +36,8 @@ OPTIONS = {
         'CFBundleDisplayName': u"高频词汇分析",
         'CFBundleGetInfoString': "hf_word_analysis",
         # 'CFBundleIdentifier': "",
-        'CFBundleVersion': "0.1",
-        'CFBundleShortVersionString': "0.1",
+        'CFBundleVersion': PATCH,
+        'CFBundleShortVersionString': PATCH,
         'NSHumanReadableCopyright': u"Copyright © 2020, "
                                     u"Hongcheng Wei, All Rights Reserved"
     }
