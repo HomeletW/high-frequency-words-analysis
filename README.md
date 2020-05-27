@@ -145,6 +145,10 @@
 
 <img src="resource/readme/work_process.png" alt="work process">
 
+流程执行顺序为:
+
+<a href="#创建根目录">创建根目录</a> -> <a href="准备数据#">准备数据</a> -> <a href="#创建索引">创建索引</a> -> <a href="#预处理">预处理</a> -> <a href="#校对预处理">校对预处理</a> -> <a href="#装载数据">装载数据</a> -> <a href="#抽取词汇">抽取词汇</a> -> <a href="#初步检查词汇">初步检查词汇</a> -> <a href="#统计分析">统计分析</a> -> <a href="#输出">输出</a>
+
 ### 创建根目录
 
 如果想要开始分析首先我们需要一个根目录。
@@ -218,7 +222,7 @@
 - 裁剪参数：这一参数的作用是通过裁剪扫描图片的方式，帮助程序过滤掉一些无用的信息。
     - 格式为：`CROP=x/y//height`
     
-<img src="resource/readme/crop_parm_demo.png" alt="crop parm demo" height="150px"> 
+<img src="resource/readme/crop_parm_demo.png" alt="crop parm demo" height="150px" width="450px"> 
 
 - 识别语言：这一参数的作用是设定一个识别语言，来更好的识别数据。
     - 目前支持的语言有
@@ -230,7 +234,7 @@
     - 关于 Tesseract-ocr 支持语言请前往：<a href="https://github.com/tesseract-ocr/tessdoc">tesseract doc</a>
     - 格式为：`LANG=语言1+语言2`
     
-<img src="resource/readme/lang_parm_demo.png" alt="lang parm demo" height="150px">
+<img src="resource/readme/lang_parm_demo.png" alt="lang parm demo" height="150px" width="300px">
     
 ##### 裁剪参数用途
 比如说在某些 PDF 文件里每一页会出现的页眉，页脚，页码，假如这些是一些我们不想要的干扰数据，
