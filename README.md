@@ -6,7 +6,7 @@
     - <a href="#进程面板">进程面板</a>
     - <a href="#控制面板">控制面板</a>
     - <a href="#状态面板">状态面板</a>
-- <a href="#分析流程介绍">分析流程介绍</a>
+- <a href="#使用教程">使用教程</a>
     - <a href="#创建根目录">创建根目录</a>
     - <a href="#准备数据">准备数据</a>
     - <a href="#创建索引">创建索引</a>
@@ -141,11 +141,11 @@
 
 <img src="resource/readme/status_info_2.png" alt="status info 2">
 
-## 分析流程介绍
+## 使用教程
 
 <img src="resource/readme/work_process.png" alt="work process">
 
-流程执行顺序为:
+想要使用高频词汇分析，应遵守以下执行顺序:
 
 <a href="#创建根目录">创建根目录</a> -> <a href="准备数据#">准备数据</a> -> <a href="#创建索引">创建索引</a> -> <a href="#预处理">预处理</a> -> <a href="#校对预处理">校对预处理</a> -> <a href="#装载数据">装载数据</a> -> <a href="#抽取词汇">抽取词汇</a> -> <a href="#初步检查词汇">初步检查词汇</a> -> <a href="#统计分析">统计分析</a> -> <a href="#输出">输出</a>
 
