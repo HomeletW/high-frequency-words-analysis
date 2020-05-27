@@ -363,7 +363,7 @@ If you need any other supported languages, run `brew install tesseract-lang`.
 
 #### 高频词汇分析安装
 
-接下来我们将安装主体程序，前往[发布版本列表](release)来选择安装版本，或者直接下载[推荐版本](https://github.com/HomeletW/high-frequency-words-analysis/raw/master/release/V%25200.2/%25E9%25AB%2598%25E9%25A2%2591%25E8%25AF%258D%25E6%25B1%2587%25E5%2588%2586%25E6%259E%2590_release_0.2.zip)。
+接下来我们将安装主体程序，前往[发布版本列表](release)来选择安装版本，或者直接下载[推荐版本](https://github.com/HomeletW/high-frequency-words-analysis/blob/master/release/V%200.2/%E9%AB%98%E9%A2%91%E8%AF%8D%E6%B1%87%E5%88%86%E6%9E%90_release_0.2.zip?raw=true)。
 
 接下来将下载好的 zip 文件移动到您喜欢的位置（例如，桌面）然后双击解压，并且将解压好的文件夹改成喜欢的名字。
 
