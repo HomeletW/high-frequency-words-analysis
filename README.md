@@ -12,6 +12,7 @@
     - <a href="#创建索引">创建索引</a>
         - <a href="#索引文件格式">索引文件格式</a>
         - <a href="#附加参数文件格式">附加参数文件格式</a>
+        - <a href="#裁剪参数用途">裁剪参数用途</a>
     - <a href="#预处理">预处理</a>
     - <a href="#校对预处理">校对预处理</a>
     - <a href="#装载数据">装载数据</a>
@@ -26,7 +27,7 @@
         - <a href="#poppler安装">poppler 安装</a>
         - <a href="#tesseract安装">tesseract 安装</a>
         - <a href="#高频词汇分析安装">高频词汇分析 安装</a>
-- <a href="#change_log">Change Log</a>
+- <a href="#changelog">Change Log</a>
 - <a href="#常见问题">常见问题</a>
 
 ## 项目概述
@@ -231,7 +232,7 @@
     
 <img src="resource/readme/lang_parm_demo.png" alt="lang parm demo" height="150px">
     
-##### 裁剪数据用途
+##### 裁剪参数用途
 比如说在某些 PDF 文件里每一页会出现的页眉，页脚，页码，假如这些是一些我们不想要的干扰数据，
 
 <img src="resource/readme/data-300-0149.jpg" alt="crop example" height="700px">
@@ -407,16 +408,9 @@ Finnished!
 
 运行成功之后可以把 *高频词汇分析.app* 文件拖入 程序（Application）文件夹，来快速访问。
 
-
-## change_log
-
-`V0.2` 改善 PDF 处理速度，运用 mutiprocessing，修复编码问题。
-
-`V0.1` 初版本发布
-
 ## 常见问题
 
-#### 如何打开终端.app（Terminal.app）
+### 如何打开终端.app（Terminal.app）
 
 <h5>方法1：</h5>
 打开聚焦搜索（同时按下 Command + 空格键），输入 终端.app（Terminal.app），按下回车即可打开。
@@ -425,13 +419,19 @@ Finnished!
 <h5>方法2：</h5>
 Application 文件夹并搜索 终端.app（Terminal.app），双击即可打开。
 
-#### 值错误
+### 值错误
 
-#### Unable to get Page Count, is poppler installed?
+### Unable to get Page Count, is poppler installed?
 
 首先<a href="#如何打开终端appTerminalapp">打开终端（Terminal.app）</a> 输入以下指令：
 
 `brew unlink poppler && brew link poppler`
+
+## Change log
+
+`V0.2` 改善 PDF 处理速度，运用 mutiprocessing，修复编码问题。
+
+`V0.1` 初版本发布
 
 
 
