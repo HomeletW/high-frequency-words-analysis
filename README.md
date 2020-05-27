@@ -21,7 +21,7 @@
     - <a href="#输出">输出</a>
 - <a href="#如何安装">如何安装</a>
     - <a href="#MacOs">MacOs</a>
-        - <a href="#python与pip 安装">python 与 pip 安装</a>
+        - <a href="#python与pip安装">python 与 pip 安装</a>
         - <a href="#Homebrew安装">Homebrew 安装</a>
         - <a href="#poppler安装">poppler 安装</a>
         - <a href="#tesseract安装">tesseract 安装</a>
