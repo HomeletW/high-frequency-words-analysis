@@ -283,7 +283,7 @@
 
 接下来我们验证 python 与 pip 是否被正确安装。
 
-首先<a href="#如何打开终端.app（Terminal.app）">打开 终端.app（Terminal.app）</a>，打开聚焦搜索（同时按下 Command + 空格键），输入 Terminal.app
+首先<a href="#如何打开终端appTerminalapp">打开 终端.app（Terminal.app）</a>，打开聚焦搜索（同时按下 Command + 空格键），输入 Terminal.app
 
 <img src="resource/readme/terminal_open.png" alt="terminal open">
 
@@ -301,7 +301,7 @@ pip 20.0.2 from ... (python 3.8)
 #### homebrew安装
 
 在安装 高频词汇分析 之前我们需要安装几个项目依赖库，我们将使用包管理工具 Homebrew 来协助我们安装。
-请首先打开<a href="#如何打开终端.app（Terminal.app）">终端（Terminal.app）</a>且输入以下命令：
+请首先打开<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>且输入以下命令：
 
 `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
 
@@ -327,7 +327,7 @@ Press RETURN to continue or any other key to abort  ---> 请按 Enter 键 <---
 
 #### poppler安装
 
-接下来请在<a href="#如何打开终端.app（Terminal.app）">终端（Terminal.app）</a>对话框输入以下命令来安装 `poppler` 库（提供关于 PDF 处理支持）。
+接下来请在<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>对话框输入以下命令来安装 `poppler` 库（提供关于 PDF 处理支持）。
 
 `brew install poppler`
 
@@ -343,7 +343,7 @@ Press RETURN to continue or any other key to abort  ---> 请按 Enter 键 <---
 
 #### tesseract安装
 
-接下来请在<a href="#如何打开终端.app（Terminal.app）">终端（Terminal.app）</a>对话框输入以下命令来安装 `tesseract` 库（提供关于光学字符识别（OCR）支持）。
+接下来请在<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>对话框输入以下命令来安装 `tesseract` 库（提供关于光学字符识别（OCR）支持）。
 
 `brew install tesseract`
 
@@ -370,7 +370,7 @@ __!! 注意：一旦程序设定完成，将不能改变该文件夹地址以及
 
 双击打开该文件夹，找到 `install_script.sh` 文件。
 
-现在请在<a href="#如何打开终端.app（Terminal.app）">终端（Terminal.app）</a>对话框输入 `sh` 并且把 `install_script.sh` 拖入对话框中，然后按下回车键。
+现在请在<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>对话框输入 `sh` 并且把 `install_script.sh` 拖入对话框中，然后按下回车键。
 
 <img src="resource/readme/drag_install_script.gif" alt="drag install script">
 
@@ -431,7 +431,7 @@ Application 文件夹并搜索 终端.app（Terminal.app），双击即可打开
 
 #### Unable to get Page Count, is poppler installed?
 
-首先<a href="#如何打开终端.app（Terminal.app）">打开终端（Terminal.app）</a> 输入以下指令：
+首先<a href="#如何打开终端appTerminalapp">打开终端（Terminal.app）</a> 输入以下指令：
 
 `brew unlink poppler && brew link poppler`
 
