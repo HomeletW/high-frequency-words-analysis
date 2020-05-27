@@ -98,7 +98,10 @@ def scan_pdf(path_to_pdf: str,
              cov_format: str,
              engine: bool,
              setup, tracker) -> Dict[int, str]:
-    tracker.log("   转换 pdf -> {} (可能会很久, 请耐心等待)".format(cov_format), prt=True)
+    tracker.log(
+        "   转换 pdf -> {} [utilizing_thread={}](可能会很久, 请耐心等待)".format(
+            cov_format, USABLE_THREAD),
+        prt=True)
     # get the page range that we need to process
     first_page = min(r[3] for r in setup)
     last_page = max(r[4] for r in setup)
@@ -136,7 +139,8 @@ def scan_pdf(path_to_pdf: str,
             first_page=start, last_page=end,
             fmt=cov_format, paths_only=True, output_file=name_generator,
             use_pdftocairo=engine,
-            poppler_path=pathlib.PurePath(POPPLER_PATH)
+            poppler_path=pathlib.PurePath(POPPLER_PATH),
+            thread_count=USABLE_THREAD,
         )
         paths.update({extract_page_number(p): p for p in temp_images_path})
     tracker.set_indeterminate(False)

@@ -1219,9 +1219,10 @@ class ThreadWrapper:
                             parent=self._master,
                             title="{} 错误".format(self._name),
                             message="{}进程以 值错误 结束！\n"
-                                    "请检查值对应域是否填写正确！\n"
-                                    "前往 https://github.com/HomeletW/high-"
-                                    "frequency-words-analysis 查看该错误的解决办法!\n"
+                                    "请前往 <"
+                                    "https://github.com/HomeletW/high-frequency-words-analysis#值错误"
+                                    "> 查看该错误的解决办法!"
+                                    "或者联系开发人员并汇报该错误！\n"
                                     "\n"
                                     "错误信息:\n".format(self._name) + info
                         )
@@ -1230,9 +1231,10 @@ class ThreadWrapper:
                             parent=self._master,
                             title="{} 错误".format(self._name),
                             message="{}进程以 意外错误 结束！\n"
-                                    "请联系开发人员并汇报该错误！\n"
-                                    "或者前往 https://github.com/HomeletW/high-"
-                                    "frequency-words-analysis 查看该错误的解决办法!\n"
+                                    "请前往 <"
+                                    "https://github.com/HomeletW/high-frequency-words-analysis#常见问题"
+                                    "> 查看该错误的解决办法!"
+                                    "或者联系开发人员并汇报该错误！\n"
                                     "\n"
                                     "错误信息:\n".format(self._name) + info
                         )

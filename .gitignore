@@ -14,8 +14,9 @@ log/.
 .eggs
 
 # default.json
-default.json
+/default.json
 
 build
 
 dist
+

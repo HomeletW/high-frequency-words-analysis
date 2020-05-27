@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os
+import multiprocessing
 import platform
 from logging import CRITICAL, DEBUG, ERROR, INFO, NOTSET, WARNING
 
@@ -8,6 +8,11 @@ import jieba.analyse
 
 from hf_analysis.processing.word_statistics import TREND_FLAG_DECLINE, \
     TREND_FLAG_INCREASE, TREND_FLAG_STABLE, TrendAnalyzer
+
+USABLE_THREAD = multiprocessing.cpu_count() // 4
+
+if USABLE_THREAD <= 0:
+    USABLE_THREAD = 1
 
 # get poppler path
 POPPLER_PATH = '/usr/local/bin/'

@@ -29,12 +29,13 @@ def extract_text(path: str) -> str:
 
 def extract_docx(path: str) -> str:
     text = process(path)
-    return "\n".join(text)
+    return "\n".join(str(t, encoding="utf8") for t in text)
 
 
 def extract_excel(path: str) -> str:
     df = pd.read_excel(path)
-    return "\n".join(" ".join(str(i) for i in row) for row in df.iterrows())
+    return "\n".join(
+        " ".join(str(i, encoding="utf8") for i in row) for row in df.iterrows())
 
 
 def load_words(path: str) -> List[str]:
@@ -83,8 +84,8 @@ def prepare_data(root_path: str, index_path: str, tracker) -> \
             index_file_name.remove(file_pre)
             tracker.update_disc_fill("处理 {}".format(file_name))
             content = get_text(abs_path)
-            category = file_args[2]
-            name = file_args[3]
+            category = str(file_args[2], encoding="utf8")
+            name = str(file_args[3], encoding="utf8")
             order_index = int(file_args[1])
             tracker.log("处理 {} [category={}, name={}, order_index={}]".format(
                 file_name, category, name, order_index), prt=True)

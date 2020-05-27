@@ -599,7 +599,7 @@ class CentralActionFrame(BaseFrame):
         )
         self.review_preprocess_button = tk.Button(
             master=self, command=self.review_preprocess,
-            text="查看 预处理成果"
+            text="校对预处理"
         )
         self.load_data_button = TwoStageButton(
             master=self, command=self._load_data_thread.run,
@@ -613,7 +613,7 @@ class CentralActionFrame(BaseFrame):
         )
         self.review_extraction_button = tk.Button(
             master=self, command=self.review_extraction,
-            text="查看 抽取词汇"
+            text="初步检查词汇"
         )
         self.analyze_button = TwoStageButton(
             master=self, command=self._analyze_thread.run,

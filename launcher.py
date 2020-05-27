@@ -7,7 +7,7 @@ from hf_analysis.parameter import INFO_PATCH
 from hf_analysis.ui.UI import MainApplication
 from hf_analysis.ui.tk_object import InfoHandler, TRACKER_LOG_ERROR
 
-PATCH = "0.1"
+PATCH = "0.2"
 
 
 def main():
@@ -27,7 +27,10 @@ def main():
                     tp=TRACKER_LOG_ERROR, exc_info=e, prt=True)
         messagebox.showerror(title="程序错误",
                              message="出现未知的程序错误！\n"
-                                     "请联系开发者并汇报该错误！\n"
+                                     "请前往 <"
+                                     "https://github.com/HomeletW/high-frequency-words-analysis#常见问题"
+                                     "> 查看该错误的解决办法!"
+                                     "或者联系开发人员并汇报该错误！\n"
                                      "\n"
                                      "错误信息:\n{}".format(s))
 
