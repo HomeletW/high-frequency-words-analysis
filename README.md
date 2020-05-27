@@ -20,13 +20,13 @@
     - <a href="#统计分析">统计分析</a>
     - <a href="#输出">输出</a>
 - <a href="#如何安装">如何安装</a>
-    - <a href="#MacOs">MacOs</a>
+    - <a href="#macos">MacOs</a>
         - <a href="#python与pip安装">python 与 pip 安装</a>
-        - <a href="#Homebrew安装">Homebrew 安装</a>
+        - <a href="#homebrew安装">Homebrew 安装</a>
         - <a href="#poppler安装">poppler 安装</a>
         - <a href="#tesseract安装">tesseract 安装</a>
         - <a href="#高频词汇分析安装">高频词汇分析 安装</a>
-- <a href="#Change Log">Change Log</a>
+- <a href="#change_log">Change Log</a>
 - <a href="#常见问题">常见问题</a>
 
 ## 项目概述
@@ -216,13 +216,10 @@
 - 文件地址：文件的名字，这一项与索引文件里文件地址规则相同。
 - 裁剪参数：这一参数的作用是通过裁剪扫描图片的方式，帮助程序过滤掉一些无用的信息。
     - 格式为：`CROP=x/y//height`
-<img src="resource/readme/crop_parm_demo.png" alt="crop parm demo" height="150px">     
-    - 比如说在某些 PDF 文件里每一页会出现的页眉，页脚，页码，假如这些是一些我们不想要的干扰数据，
-<img src="resource/readme/data-300-0149.jpg" alt="crop example" height="700px">
-    - 我们可以通过设定一个裁剪参数使这些干扰数据不被识别。
+    
+<img src="resource/readme/crop_parm_demo.png" alt="crop parm demo" height="150px"> 
+
 - 识别语言：这一参数的作用是设定一个识别语言，来更好的识别数据。
-    - 格式为：`LANG=语言1+语言2`
-<img src="resource/readme/lang_parm_demo.png" alt="lang parm demo" height="150px">
     - 目前支持的语言有
         - 简体中文：chi_sim
         - 繁体中文：chi_tra
@@ -230,6 +227,16 @@
         - 尽量准确选择可能出现的语言
         - 尽量排除不会出现的语言来减少干扰
     - 关于 Tesseract-ocr 支持语言请前往：<a href="https://github.com/tesseract-ocr/tessdoc">tesseract doc</a>
+    - 格式为：`LANG=语言1+语言2`
+    
+<img src="resource/readme/lang_parm_demo.png" alt="lang parm demo" height="150px">
+    
+##### 裁剪数据用途
+比如说在某些 PDF 文件里每一页会出现的页眉，页脚，页码，假如这些是一些我们不想要的干扰数据，
+
+<img src="resource/readme/data-300-0149.jpg" alt="crop example" height="700px">
+
+我们可以通过设定一个裁剪参数使这些干扰数据不被识别。
 
 ### 预处理
 
@@ -265,7 +272,7 @@
 
 ## 如何安装
 
-### MacOs
+### macos
 
 #### python与pip安装
 
@@ -291,7 +298,7 @@ pip 20.0.2 from ... (python 3.8)
 
 如果返回结果类似于 `Python 3.8.3` 和 `pip 20.0.2` 说明您已经成功安装 Python 3.8.3！
 
-#### Homebrew安装
+#### homebrew安装
 
 在安装 高频词汇分析 之前我们需要安装几个项目依赖库，我们将使用包管理工具 Homebrew 来协助我们安装。
 请首先打开<a href="#如何打开终端.app（Terminal.app）">终端（Terminal.app）</a>且输入以下命令：
@@ -401,7 +408,7 @@ Finnished!
 运行成功之后可以把 *高频词汇分析.app* 文件拖入 程序（Application）文件夹，来快速访问。
 
 
-## Change Log
+## change_log
 
 `V0.2` 改善 PDF 处理速度，运用 mutiprocessing，修复编码问题。
 
