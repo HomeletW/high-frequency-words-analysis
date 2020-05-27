@@ -422,10 +422,8 @@ Finnished!
 打开聚焦搜索（同时按下 Command + 空格键），输入 终端.app（Terminal.app），按下回车即可打开。
 
 <img src="resource/readme/terminal_open.png" alt="terminal open">
-
 <h5>方法2：</h5>
 Application 文件夹并搜索 终端.app（Terminal.app），双击即可打开。
-
 
 #### 值错误
 
