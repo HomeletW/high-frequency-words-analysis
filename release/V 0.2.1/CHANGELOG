@@ -1,0 +1,5 @@
+2020-05-27  Hongcheng Wei <homeletwei@gmail.com>
+
+* pdf processing speed upgrade, using mutiprocessing
+* fix possible encoding error ascii -> utf8
+* use tinhua mirror to boost download speed
