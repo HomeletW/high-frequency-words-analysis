@@ -15,6 +15,9 @@ echo "正在安装 Homebrew..."
 
 /usr/bin/ruby -e "$(curl -fsSL https://cdn.jsdelivr.net/gh/ineo6/homebrew-install/install)"
 
+
+echo "正在安装 git..."
+
 brew install git
 
 echo "正在配置 Homebrew 使用 清华源..."

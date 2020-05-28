@@ -5,12 +5,14 @@ from hf_analysis.ui.parm_field import *
 
 class MainApplication:
     def __init__(self, tk_instance, info_handler,
-                 title="高频词汇分析", width=780, height=750):
+                 title="高频词汇分析"):
         self.root = tk_instance
         self.icon_image = tk.PhotoImage(file=ICON_PNG_PATH)
-        self.root.minsize(width, height)
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
+        width = screen_width // 2
+        height = screen_height // 4 * 3
+        self.root.minsize(width, height)
         x, y = (screen_width - width) // 2, (screen_height - height) // 2
         self.root.geometry("+{}+{}".format(x, y))
         self.size = width, height

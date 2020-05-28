@@ -80,7 +80,7 @@ def process_text(path_to_text: str,
         name = "{}_{}_{}_{}.txt".format(DATA_PREFIX, sort, cat, title)
         content_path = join(data_folder, name)
         tracker.log("   正在处理 {}".format(title), prt=True)
-        with open(content_path, "w+") as f:
+        with open(content_path, "w+", encoding="utf8") as f:
             # write a div for easy identify
             f.write("#" + "=" * FORMAT_LENGTH + "\n")
             # write the path of this page
@@ -119,7 +119,7 @@ def scan_pdf(path_to_pdf: str,
         prefix, f_dpi, page_number, format_ = info
         if prefix == name and f_dpi == dpi and format_.endswith(cov_format):
             # we got this file already
-            processed[page_number] = p.encode("utf8")
+            processed[page_number] = str(p)
     subsets, relev = get_relevant_subset(processed, first_page, last_page)
     total_page = sum(e - s + 1 for s, e in subsets)
     name_generator = ("{}-{}".format(name, dpi) for _ in range(total_page))
@@ -196,7 +196,7 @@ def process_pdf(path_to_pdf: str,
             content_path = join(data_folder, name)
             tracker.log("   正在识别 [lang={}] {}".format(
                 api.GetInitLanguagesAsString(), title), prt=True)
-            with open(content_path, "w+") as f:
+            with open(content_path, "w+", encoding="utf8") as f:
                 # write header
                 f.write("# 可信度 | 行内容 （请校对识别内容，特别注意带有 ？ 的行）\n")
                 tracker.update_disc_fill("识别 {} <{}>".format(title, cat))
@@ -270,10 +270,9 @@ def extract_page_number(path: str) -> int:
 
 
 def extract_info(path: str) -> Optional[Tuple[str, int, int, str]]:
-    name, format_ = basename(path).rsplit(".", maxsplit=1)
+    name, format_ = splitext(basename(path))
     seg = name.split("-")
     if len(seg) != 3:
         return None
     prefix, dpi, page_number = seg
-    return prefix.encode("utf8"), int(dpi), int(page_number), format_.encode(
-        "utf8")
+    return str(prefix), int(dpi), int(page_number), str(format_)

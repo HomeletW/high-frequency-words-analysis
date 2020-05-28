@@ -29,13 +29,13 @@ def extract_text(path: str) -> str:
 
 def extract_docx(path: str) -> str:
     text = process(path)
-    return "\n".join(str(t, encoding="utf8") for t in text)
+    return "\n".join(str(t) for t in text)
 
 
 def extract_excel(path: str) -> str:
     df = pd.read_excel(path)
     return "\n".join(
-        " ".join(str(i, encoding="utf8") for i in row) for row in df.iterrows())
+        " ".join(str(i) for i in row) for row in df.iterrows())
 
 
 def load_words(path: str) -> List[str]:
@@ -84,8 +84,8 @@ def prepare_data(root_path: str, index_path: str, tracker) -> \
             index_file_name.remove(file_pre)
             tracker.update_disc_fill("处理 {}".format(file_name))
             content = get_text(abs_path)
-            category = str(file_args[2], encoding="utf8")
-            name = str(file_args[3], encoding="utf8")
+            category = str(file_args[2])
+            name = str(file_args[3])
             order_index = int(file_args[1])
             tracker.log("处理 {} [category={}, name={}, order_index={}]".format(
                 file_name, category, name, order_index), prt=True)
@@ -179,6 +179,6 @@ def process_pram_value(key, value, tracker):
             return None
         return int(v[0]), int(v[1]), int(v[2]), int(v[3])
     elif key in [ADDI_PARM_LANG]:
-        return str(value)
+        return value
     else:
         return None
