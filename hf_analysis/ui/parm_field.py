@@ -894,12 +894,12 @@ class CentralActionFrame(BaseFrame):
         self.export_path, _ = split(path)
         self._info_handler.put_field(key=INFO_OUTPUT_PATH, value=path)
         self._sync_button(doing=self.analyze_button)
-        self.analyze_button.flip()
+        self.export_button.flip()
         return True
 
     def _ending_export(self):
         self._sync_button()
-        self.analyze_button.flip()
+        self.export_button.flip()
 
 
 class RightJiebaOpFrame(LabeledBaseFrame):
