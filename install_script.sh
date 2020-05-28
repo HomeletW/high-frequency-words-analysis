@@ -23,9 +23,11 @@ source hfwa_env/bin/activate
 
 echo "Installing Dependencies..."
 
+echo "Using Mirror : https://pypi.tuna.tsinghua.edu.cn/simple"
+
 # now install all required pacakges in requirements.txt
 
-hfwa_env/bin/python -m pip install -r requirements.txt
+hfwa_env/bin/python -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
 
 echo "Prepare to build App..."
 

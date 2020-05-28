@@ -147,7 +147,7 @@
 
 想要使用高频词汇分析，应遵守以下执行顺序:
 
-<a href="#创建根目录">创建根目录</a> -> <a href="准备数据#">准备数据</a> -> <a href="#创建索引">创建索引</a> -> <a href="#预处理">预处理</a> -> <a href="#校对预处理">校对预处理</a> -> <a href="#装载数据">装载数据</a> -> <a href="#抽取词汇">抽取词汇</a> -> <a href="#初步检查词汇">初步检查词汇</a> -> <a href="#统计分析">统计分析</a> -> <a href="#输出">输出</a>
+<a href="#创建根目录">创建根目录</a> ➡️ <a href="准备数据#">准备数据</a> ➡️ <a href="#创建索引">创建索引</a> ➡️ <a href="#预处理">预处理</a> ➡️ <a href="#校对预处理">校对预处理</a> ➡️ <a href="#装载数据">装载数据</a> ➡️ <a href="#抽取词汇">抽取词汇</a> ➡️ <a href="#初步检查词汇">初步检查词汇</a> ➡️ <a href="#统计分析">统计分析</a> ➡️ <a href="#输出">输出</a>
 
 ### 创建根目录
 
@@ -168,7 +168,11 @@
 ### 创建索引
 
 现在我们需要创建两个文件，索引文件 和 附加参数文件。这两个文件格式为.xlsx/.xls（Excel 文件）。
-索引文件是用于告诉程序想要分析的数据的具体信息，附加参数文件是用于告诉程序一些附加的参数。
+索引文件是用于告诉程序想要分析的数据的具体信息，包括数据的具体位置以及类别。
+
+附加参数文件是用于声明对与每个文件的额外参数，包括裁减参数与识别语言。
+
+_注意：附加参数文件是用于帮助更好的分析您的数据，如果没有需要，这个文件是可以被省略的。_
 
 #### 索引文件格式
 <table style="width:100%">
@@ -191,6 +195,9 @@
     <td>CROP=210/280/2300/3050｜LANG=chi_sim</td>
   </tr>
 </table>
+
+[索引文件模板](resource/template/index.xlsx)
+
 参数具体含义：
 
 - 名字：数据的名字
@@ -216,10 +223,14 @@
     <td>LANG=chi_sim</td>
   </tr>
 </table>
+
+[附加参数文件模板](resource/template/additioanl_pram.xlsx)
+
 参数具体含义：
 
 - 文件地址：文件的名字，这一项与索引文件里文件地址规则相同。
 - 裁剪参数：这一参数的作用是通过裁剪扫描图片的方式，帮助程序过滤掉一些无用的信息。
+    - 关于裁减参数用途请参考：<a href="#裁剪参数用途">裁剪参数用途</a>
     - 格式为：`CROP=x/y//height`
     
 <img src="resource/readme/crop_parm_demo.png" alt="crop parm demo" height="150px" width="450px"> 
@@ -234,28 +245,115 @@
     - 关于 Tesseract-ocr 支持语言请前往：<a href="https://github.com/tesseract-ocr/tessdoc">tesseract doc</a>
     - 格式为：`LANG=语言1+语言2`
     
-<img src="resource/readme/lang_parm_demo.png" alt="lang parm demo" height="150px" width="300px">
-    
-##### 裁剪参数用途
-比如说在某些 PDF 文件里每一页会出现的页眉，页脚，页码，假如这些是一些我们不想要的干扰数据，
-
-<img src="resource/readme/data-300-0149.jpg" alt="crop example" height="700px">
-
-我们可以通过设定一个裁剪参数使这些干扰数据不被识别。
+<img src="resource/readme/lang_parm_demo.png" alt="lang parm demo" height="150px" width="450px">
 
 ### 预处理
+当您已经完成了前三步，您已经准备好开始进行预处理了。
+
+请打开 _高频词汇分析.app_，首先我们要做的是将刚刚准备好的 *根目录*，*索引文件* 以及 *附加参数文件*（附加参数文件可以省略），输入到软件中。
+
+在<a href="#参数面板">参数面板</a>上（位于主界面上半部分），找到 *文件选择* 然后单击 *选择 根目录*，然后在 *访达（Finder）* 对话框中选择您创建的根目录。
+
+接下来同样在 *文件选择* 中单击 *选择 索引文件*，然后在 *访达（Finder）* 对话框中选择您创建的索引文件。
+
+最后同样在 *文件选择* 中单击 *选择 附加参数文件*，然后在 *访达（Finder）* 对话框中选择您创建的索引文件。
+
+__小技巧：如果选择错误可以重新点击选择再次选择。如果想要删除选择的文件/目录，可以点击位于右侧的 'x' 按钮即可删除。
+如果想要查看选择的具体目录，可以双击目录即可查看。__
+
+在选择完成文件后，我们就可以开始进行 *预处理*。请在<a href="#控制面板">控制面板</a>上（位于主界面下半部分），找到 *预处理* 按钮，单击即可开始预处理任务。
+
+注意事项：
+- 预处理任务可能会花费很久时间，如果想要提升预处理速度，请参考:<a href="#提升预处理速度">提升预处理速度</a>
+- 当您已经进行过预处理了，并且不想重新分析一边数据（会覆盖之前预处理的结果），预处理任务是可以跳过的，那么请直接开始<a href="#装载数据">装载数据</a>。
+- 预处理所产生的的扫描文件（.png, .jpeg, .tiff）会被保存在 `根目录/temp`，使用久了可能会占用很多内存，请定期清理。
+
+#### 关于预处理
+
+预处理的任务是帮助我们统一归纳数据，他会把所有的数据文件转化为 DATA 文件并保存在 `根目录/data` 下以便以后校对与分析。
+
+<img src="resource/readme/preprocess_process.png" alt="preprocess process">
+
+首先预处理进程会读取 *索引文件* 和 *附加参数文件* 并且分配任务。word 文档，txt文件等文本文档会被直接输出成 DATA 文件。
+接下来的任务就是帮助我们把正常无法提取文字的扫描版 PDF 文件的部分，利用 OCR（Optical Character Recognition，光学字符识别）技术提取文字并转化为 DATA 文件。
+
+但是请注意，OCR 技术 无法 100% 准确的识别文字（平均准确度在 80%～90%）。
+当然有一些设置可以帮助 OCR 来提升识别文字的准确度，比如用更高的 DPI 扫描 pdf 文件，用 tiff 这种无损无压缩的图像保存格式来保存扫描文档（更多请见<a href="#提升预处理速度">提升预处理速度</a>，<a href="#提升预处理质量">提升预处理质量</a>）。
+但是这些方法都无一例外存在弊端，会导致处理时间的曾长或者消耗更多电脑内存。所以*人工校对*是确保准确度的另一办法（请参考下一步 <a href="#校对预处理">校对预处理</a>）。
 
 ### 校对预处理
 
+当预处理完成时，会在 `根目录/data` 文件夹里产生一系列的  DATA 文件。请先阅读 <a href="#关于预处理">关于预处理</a> 来了解为什么要校对预处理。
+
+以下是一个示例 DATA 文件：
+```
+# 可信度 | 行内容 （请校对识别内容，特别注意带有 ？ 的行）
+#============== 页码: 33, 平均可信度: 89.68 ==============
+#文件地址: /home/homelet/Desktop/数据/temp/data-300-0033.png
+  90.57 | 中国共产党宣言
+? 84.89 | 《一九二O〇年十一月)
+  92.08 | 亲爱的同志们!这个宣言是中国共产党在去年十一月间决定的。这宣言的
+  94.31 | 内容不过是关于共产主义原则的一部分，因此没有向外发表，不过以此为收纳
+  93.34 | 党员之标准。这宣言之中文原稿不能在此地找到，所以兄弟把他从英文稿翻译
+  94.06 | 出来。决定这宣言之时期既然有一年多了，当然到现在须要有修改和添补的地
+  91.33 | 方。我很希望诸位同志把这个宣言仔细研究一普，因为每一个共产主义者都得
+  92.19 | 要注意这种重要的文件一一共产党宣言。并且会提出远东人民会议[2]中国代
+  93.64 | 表团中之共产主义者组讨论。讨论的结果，将要供中国共产党的参考和采纳。
+? 62.48 | Chang[3】]
+  95.50 | 一九二一年十二月十日
+? 83.38 | 1，共产主义者的理想
+  93.04 | A.对于经济方面的见解共产主义者主张将生产工具一一机器工厂，原料，
+  90.74 | 土地，交通机关等一一收归社会共有，社会共用。要是生产工具收归共有共用
+...
+#=================总体平均可信度 : 89.68==================
+```
+每一页 PDF 文档都对应着DATA 文件中的一个段落。每个段落的第一行展示了 *页码* 以及这一页的 *平均可信度*。紧接着第二行展示了这个行对应的文件地址。接下来的 n 行就是扫描内容（n 为这个页一共有多少行）。
+
+每一行内容的格式为：
+```
+ 行可信度 | 行内容
+```
+如果这一行的 *行可信度* 低于这一页的 *平均可信度*，在这一行的最前面将会标注 `?`。
+
+**__要点：当我们进行人工校对时请重点注意前面带有 `?` 的行。__**
+
+如果的行的开头符号为 `#`，这一行将成为注释行（程序不会识别）。例如：
+```
+#这是一行注释行，程序将不会识别这一行的内容。
+```
+
 ### 装载数据
 
+当您完成了预处理，或者之前已经进行过预处理。您现在已经可进行装载数据了。
+
+请在<a href="#控制面板">控制面板</a>上（位于主界面下半部分），找到 *装载数据* 按钮，单击即可开始装载数据任务。
+
+装载数据的目的是程序用来读取预处理过的 DATA 数据的。首先他会读取索引文件，然后找到 `根目录/data` 文件夹并读取所有索引文件里提及到的 DATA 文件。
+
 ### 抽取词汇
+
+当数据已经装载完成，*抽取词汇* 按钮就会被激活，
 
 ### 初步检查词汇*
 
 ### 统计分析
 
 ### 输出
+
+## 性能提升技巧
+
+### 裁剪参数用途
+比如说在某些 PDF 文件里每一页会出现的页眉，页脚，页码，假如这些是一些我们不想要的干扰数据，
+
+<img src="resource/readme/data-300-0149.jpg" alt="crop example" height="700px">
+
+我们可以通过设定一个裁剪参数使这些干扰数据不被识别。
+
+### 提升预处理速度
+
+### 提升预处理质量
+
+### 提升词汇抽取准确率
 
 ## 项目依赖
 
@@ -292,11 +390,16 @@
 
 <img src="resource/readme/terminal_open.png" alt="terminal open">
 
-接下来输入 `python3 -V` 和 `pip3 -V`
+接下来输入 `python3 -V` 并按回车键
 
 ```
 ➜  ~ python3 -V
 Python 3.8.3
+```
+
+接下来输入 `pip3 -V` 并按回车键
+
+```
 ➜  ~ pip3 -V
 pip 20.0.2 from ... (python 3.8)
 ```
@@ -306,7 +409,7 @@ pip 20.0.2 from ... (python 3.8)
 #### homebrew安装
 
 在安装 高频词汇分析 之前我们需要安装几个项目依赖库，我们将使用包管理工具 Homebrew 来协助我们安装。
-请首先打开<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>且输入以下命令：
+请首先打开<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>且输入以下命令并按回车键：
 
 `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
 
@@ -330,9 +433,35 @@ Press RETURN to continue or any other key to abort  ---> 请按 Enter 键 <---
 ...
 ```
 
+#### git安装
+
+接下来我们安装 git 我们需要用 git 来配置一些文件。请在<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>对话框输入以下命令并按回车键来安装 git.
+
+`brew install git`
+
+#### 配置homebrew
+
+因为 Homebrew 的服务器在国外，所以国内下载可能会有些慢，接下来我们把 homebrew 的源改成国内的源，这样将会提升下载速度。
+
+这里我们使用 清华大学 提供的源。
+
+请在<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>对话框输入以下命令并按回车键，注意请一行一行输入，等前一行执行结束后在输入下一行。
+
+`git -C "$(brew --repo)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git`
+
+`git -C "$(brew --repo homebrew/core)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git`
+
+`git -C "$(brew --repo homebrew/cask)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git`
+
+`git -C "$(brew --repo homebrew/cask-fonts)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask-fonts.git`
+
+`git -C "$(brew --repo homebrew/cask-drivers)" remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask-drivers.git`
+
+`brew update`
+
 #### poppler安装
 
-接下来请在<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>对话框输入以下命令来安装 `poppler` 库（提供关于 PDF 处理支持）。
+接下来请在<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>对话框输入以下命令并按回车键来安装 `poppler` 库（提供关于 PDF 处理支持）。
 
 `brew install poppler`
 
@@ -348,7 +477,7 @@ Press RETURN to continue or any other key to abort  ---> 请按 Enter 键 <---
 
 #### tesseract安装
 
-接下来请在<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>对话框输入以下命令来安装 `tesseract` 库（提供关于光学字符识别（OCR）支持）。
+接下来请在<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>对话框输入以下命令并按回车键来安装 `tesseract` 库（提供关于光学字符识别（OCR）支持）。
 
 `brew install tesseract`
 
