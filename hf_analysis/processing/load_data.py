@@ -56,13 +56,11 @@ def prepare_data(root_path: str, index_path: str, tracker) -> \
     data = {}
     ordering = {}
     dirs = listdir(data_path)
-    index_map = get_index_map(path_to_index=index_path,
-                              tracker=tracker)
-    index_file_name = [
-        "{}_{}_{}_{}".format(DATA_PREFIX, sort_index, category, title) for
-        title, _, category, sort_index, _, _, _ in index_map
-    ]
-    tracker.init_ticker("   进程", "正在处理", 0, len(dirs))
+    index_map = get_index_map(path_to_index=index_path, tracker=tracker)
+    index_files = set([
+        (category, title) for title, _, category, _, _, _, _ in index_map
+    ])
+    tracker.init_ticker("   进程", "正在装载数据", 0, len(dirs))
     for file_name in dirs:
         # get the abs path
         abs_path = join(data_path, file_name)
@@ -72,21 +70,29 @@ def prepare_data(root_path: str, index_path: str, tracker) -> \
         file_args = file_pre.split("_")
         # the first args must be DATA_PREFIX and must have two arg
         if len(file_args) < 4 or file_args[0] != DATA_PREFIX:
+            tracker.update_disc_fill("跳过 {}".format(file_name))
             tracker.log("跳过 {} 因为文件名不符合规范".format(file_name), prt=True)
+            tracker.tick()
             continue
         elif not isfile(abs_path):
+            tracker.update_disc_fill("跳过 {}".format(file_name))
             tracker.log("跳过 {} 因为无此文件".format(file_name), prt=True)
-            continue
-        elif file_pre not in index_file_name:
-            tracker.log("跳过 {} 因为文件不在 index 里".format(file_name), prt=True)
+            tracker.tick()
             continue
         else:
-            index_file_name.remove(file_pre)
-            tracker.update_disc_fill("处理 {}".format(file_name))
             content = get_text(abs_path)
             category = str(file_args[2])
             name = str(file_args[3])
             order_index = int(file_args[1])
+            indices = (category, name)
+            # if not in index file, we omit it
+            if indices not in index_files:
+                tracker.update_disc_fill("跳过 {}".format(file_name))
+                tracker.log("跳过 {} 因为文件不在 index 里".format(file_name), prt=True)
+                tracker.tick()
+                continue
+            index_files.remove(indices)
+            tracker.update_disc_fill("处理 {}".format(file_name))
             tracker.log("处理 {} [category={}, name={}, order_index={}]".format(
                 file_name, category, name, order_index), prt=True)
             if category not in data:
@@ -103,10 +109,12 @@ def prepare_data(root_path: str, index_path: str, tracker) -> \
                     tp=TRACKER_LOG_WARNING, prt=True)
             c_dict[name] = content
             tracker.tick()
-    if len(index_file_name) != 0:
+    if len(index_files) != 0:
         # there are something missing
-        raise Exception("缺少文件! 请再次运行 预处理 或检查索引文件! <{}>".format(
-            "".join(name for name in index_file_name)))
+        raise Exception("缺少文件! 请再次运行 预处理 或检查索引文件! [{}]".format(
+            ",".join(
+                "{}_{}".format(category, name) for category, name in
+                index_files)))
     return data, ordering
 
 

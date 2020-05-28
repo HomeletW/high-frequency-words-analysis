@@ -186,3 +186,5 @@ INFO_FIELD_NAME = {
 
 THREAD_VALUE_ERROR = "value_error"
 THREAD_OTHER_ERROR = "other_error"
+
+WIDTH_RATIO = 2.1

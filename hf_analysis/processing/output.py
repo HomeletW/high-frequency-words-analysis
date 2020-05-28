@@ -7,13 +7,12 @@ from pinyin import pinyin
 
 from hf_analysis.parameter import *
 
-WIDTH_RATIO = 2.1
-
 
 def write_excel(path,
                 total_summary: Dict[str, Dict[str, Any]],
                 detail_summary: Dict[str, Dict[str, Dict[str, int]]],
                 sorting,
+                tracker,
                 show_detail):
     """
     Total summary:
@@ -21,6 +20,7 @@ def write_excel(path,
     Detail summary:
         { category: { article: { tag: int } }
     """
+    tracker.log("正在创建 Excel 文件", prt=True)
     # first write the summary page
     workbook = xlsxwriter.Workbook(path)
     # some format
@@ -28,6 +28,8 @@ def write_excel(path,
     # create the summary worksheet
     summary = workbook.add_worksheet(name="总结")
     # init accum
+    tracker.init_ticker("   进程", "正在输出", 0, len(total_summary) + sum(
+        len(tag_details) for tag_details in detail_summary.values()))
     row, col = 0, 0
     max_width = []
     summary.write_string(row, col, "词汇", cell_format=title_format)
@@ -53,6 +55,8 @@ def write_excel(path,
     col = 0
     # write values
     for tag, detail in total_summary.items():
+        tracker.update_disc_fill("写入总结 {}".format(tag))
+        tracker.tick()
         # write tag
         summary.write_string(row, col, tag)
         max_width[col] = max(len(tag) * WIDTH_RATIO, max_width[col])
@@ -119,6 +123,8 @@ def write_excel(path,
         col = 0
         # write values
         for tag, art_detail in tag_details.items():
+            tracker.update_disc_fill("写入细节 {}".format(tag))
+            tracker.tick()
             work_sheet.write_string(row, col, tag)
             max_width[col] = max(len(tag) * WIDTH_RATIO, max_width[col])
             col += 1
@@ -131,4 +137,5 @@ def write_excel(path,
             col = 0
         for index, width in enumerate(max_width):
             work_sheet.set_column(index, index, width=width)
+    tracker.log("正在关闭 Excel 文件", prt=True)
     workbook.close()

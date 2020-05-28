@@ -7,7 +7,7 @@ from hf_analysis.parameter import INFO_PATCH
 from hf_analysis.ui.UI import MainApplication
 from hf_analysis.ui.tk_object import InfoHandler, TRACKER_LOG_ERROR
 
-PATCH = "0.2"
+PATCH = "0.2.2"
 
 
 def main():
