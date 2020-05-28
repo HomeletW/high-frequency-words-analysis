@@ -2,4 +2,4 @@
 
 * pdf processing speed upgrade, using mutiprocessing
 * fix possible encoding error ascii -> utf8
-* use tinhua mirror to boost download speed
+* use tihua mirror to boost download speed
