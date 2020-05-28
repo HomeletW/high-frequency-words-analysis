@@ -408,7 +408,7 @@ pip 20.0.2 from ... (python 3.8)
 
 #### homebrew安装
 
-__ 注意：新版本 >=0.2.2 配备自动安装脚本 请直接跳转到 <a href="#高频词汇分析安装">高频词汇分析安装</a>
+__ 注意：新版本 >=0.2.2 配备自动安装脚本 请直接跳转到 <a href="#高频词汇分析安装">高频词汇分析安装</a>__
 
 在安装 高频词汇分析 之前我们需要安装几个项目依赖库，我们将使用包管理工具 Homebrew 来协助我们安装。
 请首先打开<a href="#如何打开终端appTerminalapp">终端（Terminal.app）</a>且输入以下命令并按回车键：
@@ -428,7 +428,7 @@ __ 注意：新版本 >=0.2.2 配备自动安装脚本 请直接跳转到 <a hre
 /usr/local/etc/bash_completion.d/brew
 /usr/local/Homebrew
 
-Press RETURN to continue or any other key to abort  ---> 请按 Enter 键 <---
+Press RETURN to continue or any other key to abort  ---> 请按 回车 键 <---
 ==> Downloading and installing Homebrew...
 ...
 ==> Installation successful!
@@ -498,7 +498,7 @@ If you need any other supported languages, run `brew install tesseract-lang`.
 
 #### 高频词汇分析安装
 
-接下来我们将安装主体程序，前往[发布版本列表](release)来选择安装版本，或者直接下载[推荐版本](https://github.com/HomeletW/high-frequency-words-analysis/blob/master/release/V%200.2.1/%E9%AB%98%E9%A2%91%E8%AF%8D%E6%B1%87%E5%88%86%E6%9E%90_release_0.2.1.zip?raw=true)。
+接下来我们将安装主体程序，前往[发布版本列表](release)来选择安装版本，或者直接下载[推荐版本](https://github.com/HomeletW/high-frequency-words-analysis/blob/master/release/V%200.2.2/%E9%AB%98%E9%A2%91%E8%AF%8D%E6%B1%87%E5%88%86%E6%9E%90_release_0.2.2.zip?raw=true)。
 
 接下来将下载好的 zip 文件移动到您喜欢的位置（例如，桌面）然后双击解压，并且将解压好的文件夹改成喜欢的名字。
 
