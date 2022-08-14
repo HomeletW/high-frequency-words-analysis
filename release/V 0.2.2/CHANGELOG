@@ -1,7 +1,0 @@
-2020-05-28  Hongcheng Wei <homeletwei@gmail.com>
-
-* FIX screen resolution.
-* Automated install process
-* Fix occasion encoding error
-* Fix a bug that cause problem in load data
-* Fix a bug that cause button fliped wrong
