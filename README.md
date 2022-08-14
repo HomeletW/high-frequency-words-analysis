@@ -86,7 +86,7 @@ pip 20.0.2 from ... (python 3.8)
 
 ### 高频词汇分析安装
 
-接下来我们将安装主体程序，前往[发布版本列表](release)来选择安装版本，或者直接下载[推荐版本](https://github.com/HomeletW/high-frequency-words-analysis/blob/master/release/V%200.2.2/%E9%AB%98%E9%A2%91%E8%AF%8D%E6%B1%87%E5%88%86%E6%9E%90_release_0.2.2.zip?raw=true)。
+接下来我们将安装主体程序，前往[发布版本列表](https://github.com/HomeletW/high-frequency-words-analysis/releases)来选择安装版本，或者直接下载[最新版本](https://github.com/HomeletW/high-frequency-words-analysis/releases/latest)。
 
 解压zip，打开文件夹，找到 `install.sh` 文件，<a href="#如何运行sh文件">然后运行 `install.sh`</a>
 
