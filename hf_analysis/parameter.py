@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import multiprocessing
+import subprocess
 import platform
 from logging import CRITICAL, DEBUG, ERROR, INFO, NOTSET, WARNING
 
@@ -9,13 +9,10 @@ import jieba.analyse
 from hf_analysis.processing.word_statistics import TREND_FLAG_DECLINE, \
     TREND_FLAG_INCREASE, TREND_FLAG_STABLE, TrendAnalyzer
 
-USABLE_THREAD = multiprocessing.cpu_count() // 4
-
-if USABLE_THREAD <= 0:
-    USABLE_THREAD = 1
+USABLE_THREAD = 4
 
 # get poppler path
-POPPLER_PATH = '/usr/local/bin/'
+POPPLER_PATH = subprocess.check_output(['brew', '--prefix', 'poppler']).decode().strip() + "/bin"
 
 ICON_PNG_PATH = "./resource/icon_16x16@2x.png"
 ICON_ICN_PATH = "./resource/icon.icns"
@@ -28,9 +25,9 @@ ADDI_PARM_LANG = "LANG"
 DATA_PREFIX = "data"
 
 TREND_NAME = {
-    TREND_FLAG_STABLE: "稳定型",
-    TREND_FLAG_DECLINE: "衰退型",
-    TREND_FLAG_INCREASE: "新生型",
+    TREND_FLAG_STABLE: "平稳",
+    TREND_FLAG_DECLINE: "下降",
+    TREND_FLAG_INCREASE: "上升",
 }
 
 # tesseract arguments

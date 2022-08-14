@@ -99,7 +99,7 @@ def scan_pdf(path_to_pdf: str,
              engine: bool,
              setup, tracker) -> Dict[int, str]:
     tracker.log(
-        "   转换 pdf -> {} [utilizing_thread={}](可能会很久, 请耐心等待)".format(
+        "   转换 pdf -> {} [utilizing_thread={}]".format(
             cov_format, USABLE_THREAD),
         prt=True)
     # get the page range that we need to process

@@ -12,35 +12,16 @@ from sklearn import metrics
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 
-# the trend flags (趋势旗）
-
+# the trend flags
 TREND_FLAG_STABLE = "stable"
-"""
-代表 稳定型高频词汇
-
-定义：词汇的出现频率几乎保持不变
-"""
-
 TREND_FLAG_DECLINE = "decline"
-"""
-代表 衰退型高频词汇
-
-定义：词汇的出现频率几乎一直在递减
-"""
-
 TREND_FLAG_INCREASE = "increase"
-"""
-代表 新生型高频词汇
-
-定义：词汇的出现频率几乎一直在递增
-"""
-
 
 class StatisticalAnalyzer:
     """
     通过统计分析来总结此数据里的重要词汇
 
-    ！必须实现 analyse 方法 !
+    ！必须实现 analyze 方法 !
 
     Note:此类为抽象类，不应直接引用
 
@@ -67,7 +48,7 @@ class StatisticalAnalyzer:
             for tag in article
         )
 
-    def analyse(self, *args, **kwargs) -> Tuple[Dict, Dict]:
+    def analyze(self, *args, **kwargs) -> Tuple[Dict, Dict]:
         """
         返回一个排序过的列表，报告词汇分析结果
 
@@ -94,7 +75,7 @@ class TrendAnalyzer(StatisticalAnalyzer):
         super().__init__(tags, articles, sorting)
         self._threshold = (-0.4, 0.4)
 
-    def analyse(self, **kwargs) -> Tuple[Dict, Dict]:
+    def analyze(self, **kwargs) -> Tuple[Dict, Dict]:
         """
         返回一个集 包括 _num_wanted 个在 _lst 的重要高频词汇
 
@@ -147,29 +128,25 @@ class TrendAnalyzer(StatisticalAnalyzer):
     def linear_regression(values) -> Optional[Tuple[float, float, float]]:
         if len(values) < 2:
             return None
-        # we build the module
+        # build the module
         x = np.array(range(len(values))).reshape(-1, 1)
         y = np.array(values).reshape(-1, 1)
-        x_train, x_test, y_train, y_test = train_test_split(
-            x, y, test_size=0.2, random_state=0
-        )
         reg = LinearRegression()
-        reg.fit(x_train, y_train)
-        y_pred = reg.predict(x_test)
+        reg.fit(x, y)
         coefficient = reg.coef_
         intercept = reg.intercept_
-        # calculate RMSE
-        RMSE = np.sqrt(metrics.mean_squared_error(y_test, y_pred))
-        return coefficient, intercept, RMSE
+        # calculate R_2
+        R_2 = reg.score(x, y)
+        return coefficient, intercept, R_2
 
     def label(self, lr) -> Optional[str]:
         """给此预测标签"""
         if lr is None:
             return None
-        coefficient, intercept, RMSE = lr
-        if coefficient <= self._threshold[0]:
+        coefficient, _, _ = lr
+        if coefficient < self._threshold[0]:
             return TREND_FLAG_DECLINE
-        elif coefficient >= self._threshold[1]:
+        elif coefficient > self._threshold[1]:
             return TREND_FLAG_INCREASE
         else:
             return TREND_FLAG_STABLE
@@ -190,5 +167,5 @@ def analyze(segment,
     )
     # analyze the data
     kwargs["tracker"] = tracker
-    result = analyzer.analyse(**kwargs)
+    result = analyzer.analyze(**kwargs)
     return result

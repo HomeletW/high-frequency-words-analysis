@@ -613,16 +613,17 @@ class CentralActionFrame(BaseFrame):
         )
         self.review_extraction_button = tk.Button(
             master=self, command=self.review_extraction,
-            text="初步检查词汇"
+            text="检查词汇"
         )
         self.analyze_button = TwoStageButton(
             master=self, command=self._analyze_thread.run,
             text_choice={True: "统计分析", False: "统计分析中..."},
             init_pos=True
         )
-        self.export_button = tk.Button(
+        self.export_button = TwoStageButton(
             master=self, command=self._export_thread.run,
-            text="输出", fg="red"
+            text_choice={True: "输出", False: "输出中..."},
+            init_pos=True
         )
         self._buttons = [
             self.auto_next_step,

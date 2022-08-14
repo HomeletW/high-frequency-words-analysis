@@ -160,7 +160,7 @@ def process_index_rule(r, tracker) -> Tuple[str, str, str, int, int, int, dict]:
     else:
         beg, end = int(beg), int(end)
         assert beg <= end, "分割格式错误！开始页码大于结束页码"
-    return title, file_path, cat, sort, beg, end, pram
+    return str(title), str(file_path), str(cat), sort, beg, end, pram
 
 
 def process_pram(s: list, tracker) -> dict:

@@ -42,7 +42,7 @@ def write_excel(path,
         summary.write_string(row, col, "拟合系数", cell_format=title_format)
         max_width.append(4 * WIDTH_RATIO)
         col += 1
-        summary.write_string(row, col, "RMSE", cell_format=title_format)
+        summary.write_string(row, col, "R^2", cell_format=title_format)
         max_width.append(4 * WIDTH_RATIO)
         col += 1
     # write header
@@ -75,12 +75,12 @@ def write_excel(path,
         if show_detail:
             lr = detail["regression"]
             if lr is not None:
-                coefficient, _, RMSE = lr
+                coefficient, _, R_2 = lr
                 summary.write_number(row, col, coefficient)
                 max_width[col] = max(len(str(coefficient)), max_width[col])
                 col += 1
-                summary.write_number(row, col, RMSE)
-                max_width[col] = max(len(str(RMSE)), max_width[col])
+                summary.write_number(row, col, R_2)
+                max_width[col] = max(len(str(R_2)), max_width[col])
                 col += 1
             else:
                 summary.write_string(row, col, "-")

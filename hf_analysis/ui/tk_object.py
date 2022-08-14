@@ -1706,6 +1706,7 @@ class ExportThread(threading.Thread):
                 total_summary=summary,
                 detail_summary=detail,
                 sorting=sorting,
+                tracker=self._tracker,
                 show_detail=show_detail,
             )
         except ValueError as v:
